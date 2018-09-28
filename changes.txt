@@ -1,0 +1,36 @@
+v. 0.9.5, as of Sep 28, 2018
+  moved from subversion to github
+
+v. 0.9.4, as of Jul 16, 2018
+  implemented safety threshold of 8% when deleting stale xdb ids
+
+v. 0.9.3, as of Jul 13, 2018
+  improved parsing for gene associations (added handling of GN lines)
+  fixed QC and cleanup of erroneous associations
+
+v. 0.9.2, as of Jul 12, 2018
+  added handling of EPDNEW for RAT and DOG
+  fixed issue with assemblies (previously all map positions were positioned on rn3.4, Human36 and Mouse36 assemblies
+    regardless what assembly was in fact used)
+  optimized handling of sequences (moved to much simpler model)
+
+v. 0.9.1, as of Jul 11, 2018
+  fixed parsing of FP lines
+
+v. 0.9.0, as of Jul 24, 2017
+  updated build from java7 to java8; fixed insertion of xdb ids for freshly inserted promoters
+
+v. 0.8.0, as of Oct 31, 2016
+  upgraded build scripts to gradle (ant build script discontinued)
+
+v. 0.7.1, as of Sep 6, 2016
+  updated ncbi urls to use https instead of http
+
+v. 0.7.0, as of Jun 5, 2015
+  fixed handling of xdb ids
+
+v. 0.6.2, as of Jul 1, 2014
+  input files are stored as compressed, to conserve disk space
+  rgdcore and rgd-pipelines jars updated
+  email summary message tweaked up by removing unnecessary diagnostics messages
+  allows parsing of some misformatted FP lines

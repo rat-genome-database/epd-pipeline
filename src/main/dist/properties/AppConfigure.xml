@@ -1,0 +1,66 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
+        <property name="version" value="EPD ver. 0.9.5, build Sep 28, 2018"/>
+        <property name="preProcessor" ref="preProcessor"/>
+        <property name="qcProcessor" ref="qcProcessor"/>
+        <property name="loadProcessor" ref="loadProcessor"/>
+        <property name="dao" ref="dao"/>
+        <property name="locusInfoManager" ref="locusInfoManager" />
+        <property name="epdFileName" value="ftp://ccg.vital-it.ch/epd/current/epd.dat"/>
+        <property name="epdNewFileNames">
+            <list>
+                <value>ftp://ccg.vital-it.ch/epdnew/C_familiaris/current/Cf_EPDnew.dat</value>
+                <value>ftp://ccg.vital-it.ch/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
+                <value>ftp://ccg.vital-it.ch/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
+                <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
+            </list>
+        </property>
+        <property name="staleXdbIdsDeleteThreshold" value="8%" />
+    </bean>
+
+	<bean id="preProcessor" class="edu.mcw.rgd.pipelines.EPD.PreProcessor">
+        <property name="experimentEvidences">
+            <map>
+                <entry key="1" value="Direct RNA sequencing (PMID:1634116)" />
+                <entry key="2" value="Length measurement of an RNA product (PMID:1989694)" />
+                <entry key="3" value="Nuclease protection: Length measurement of a nuclease-protected complementary RNA or DNA fragment (PMID:2845126, PMID:8294473)" />
+                <entry key="4" value="RNA sequencing by primer extension : by dideoxy-terminated primer extension (PMID:3396543)" />
+                <entry key="5" value="Sequencing of a full-length cDNA (PMID:8294473)" />
+                <entry key="6" value="Primer extension: Length measurement of a primer extension product (PMID:10187799, PMID:9880555)" />
+                <entry key="7" value="DNA sequencing of a full-length processed pseudogene (PMID:3584116)" />
+                <entry key="8" value="Reverse direction primer extension with homologous sequence ladder: Length measurement of an in vitro synthesised DNA primed upstream of the initiation site and blocked by the 5'end of the RNA hybridized to the template (PMID:2451027)" />
+                <entry key="9" value="Rapid amplification of cDNA ends (RACE) (PMID:9116864)" />
+                <entry key="10" value="RNA sequencing, type not specified" />
+                <entry key="11" value="Oligo-capping: artificial capping of mRNA followed by sequencing of the 5' end of cDNA (PMID:11375929, PMID:11337467)" />
+                <entry key="12" value="Mammalian gene collection (MGC) full-length cDNA cloning (PMID:10521335)" />
+                <entry key="13" value="5' end confirmed by alignment of first 100 downstream nucleotides to EST database" />
+                <entry key="14" value="Oligo-capping: Berkeley Drosophila Genome Project (PMID:12537569)" />
+                <entry key="15" value="Oligo-capping: Rice full-length cDNA cloning (PMID:12869764)" />
+
+                <entry key="*" value="RNA POL II in vitro system" />
+                <entry key="o" value="injected amphibian oocytes" />
+                <entry key="#" value="transfected or transformed cells, injected neurons" />
+                <entry key="!" value="transgenic organisms" />
+                <entry key="r" value="transgenic organisms" />
+                <entry key="r" value="experiments performed with closely related gene" />
+                <entry key="h" value="homologous sequence ladder used for length measurement of  nuclease protection or primer extension product" />
+                <entry key="l" value="low-precision data (error > +/- 5 bp)" />
+            </map>
+        </property>
+	</bean>
+
+    <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.EPD.QCProcessor">
+        <property name="qcThreadCount" value="5"/>
+        <property name="soAccId" value="SO:0000170" /> <!-- polymerase II promoter -->
+    </bean>
+
+    <bean id="loadProcessor" class="edu.mcw.rgd.pipelines.EPD.LoadProcessor">
+    </bean>
+
+    <bean id="dao" class="edu.mcw.rgd.pipelines.EPD.Dao">
+    </bean>
+
+    <bean id="locusInfoManager" class="edu.mcw.rgd.pipelines.EPD.LocusInfoManager">
+    </bean>
+</beans>
