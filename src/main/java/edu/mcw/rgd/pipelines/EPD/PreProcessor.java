@@ -667,7 +667,7 @@ public class PreProcessor extends RecordPreprocessor {
         //nucleotides are represented by upper and lower case characters,
         //respectively. This line type is not meant to provide sequence data but
         //serves as a control string for sequence extraction.
-        Sequence2 seq = new Sequence2();
+        Sequence seq = new Sequence();
         seq.setSeqData(line.substring(2).trim());
         seq.setSeqType("promoter_region");
         rec.getSeq().addIncomingObject(seq);

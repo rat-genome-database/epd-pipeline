@@ -1,6 +1,6 @@
 package edu.mcw.rgd.pipelines.EPD;
 
-import edu.mcw.rgd.datamodel.Sequence2;
+import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.pipelines.PipelineSession;
 import edu.mcw.rgd.process.Utils;
 
@@ -14,11 +14,11 @@ import java.util.List;
  */
 public class SequenceCollection {
 
-    private List<Sequence2> incomingSeqs = new ArrayList<>();
-    private List<Sequence2> forInsertSeqs = new ArrayList<>();
-    private List<Sequence2> forDeleteSeqs = new ArrayList<>();
+    private List<Sequence> incomingSeqs = new ArrayList<>();
+    private List<Sequence> forInsertSeqs = new ArrayList<>();
+    private List<Sequence> forDeleteSeqs = new ArrayList<>();
 
-    public void addIncomingObject(Sequence2 seq) throws Exception {
+    public void addIncomingObject(Sequence seq) throws Exception {
         String md5 = Utils.generateMD5(seq.getSeqData());
         seq.setSeqMD5(md5);
         incomingSeqs.add(seq);
@@ -26,17 +26,17 @@ public class SequenceCollection {
 
     public void qc(int rgdId, Dao dao) throws Exception {
 
-        for( Sequence2 seq: incomingSeqs ) {
+        for( Sequence seq: incomingSeqs ) {
             seq.setRgdId(rgdId);
         }
 
-        List<Sequence2> inRgdSeqs = dao.getSequences(rgdId);
+        List<Sequence> inRgdSeqs = dao.getSequences(rgdId);
 
         // determine new sequences
-        for( Sequence2 seqIncoming: incomingSeqs ) {
+        for( Sequence seqIncoming: incomingSeqs ) {
 
             boolean incomingSequenceIsInRgd = false;
-            for( Sequence2 seqInRgd: inRgdSeqs ) {
+            for( Sequence seqInRgd: inRgdSeqs ) {
                 if( seqInRgd.getSeqMD5().equals(seqIncoming.getSeqMD5()) ) {
                     incomingSequenceIsInRgd = true;
                     break;
@@ -49,10 +49,10 @@ public class SequenceCollection {
         }
 
         // determine to be deleted sequences
-        for( Sequence2 seqInRgd: inRgdSeqs ) {
+        for( Sequence seqInRgd: inRgdSeqs ) {
 
             boolean inRgdSeqMatchesIncoming = false;
-            for( Sequence2 seqIncoming: incomingSeqs ) {
+            for( Sequence seqIncoming: incomingSeqs ) {
                 if( seqInRgd.getSeqMD5().equals(seqIncoming.getSeqMD5()) ) {
                     inRgdSeqMatchesIncoming = true;
                     break;
@@ -68,7 +68,7 @@ public class SequenceCollection {
     public void sync(int rgdId, Dao dao, PipelineSession session) throws Exception {
 
         if( !forInsertSeqs.isEmpty() ) {
-            for( Sequence2 seq: forInsertSeqs ) {
+            for( Sequence seq: forInsertSeqs ) {
                 seq.setRgdId(rgdId);
                 dao.insertSequence(seq);
             }
@@ -76,7 +76,7 @@ public class SequenceCollection {
         }
 
         if( !forDeleteSeqs.isEmpty() ) {
-            for( Sequence2 seq: forDeleteSeqs ) {
+            for( Sequence seq: forDeleteSeqs ) {
                 dao.deleteSequence(seq);
             }
             session.incrementCounter("SEQ_DELETED", forDeleteSeqs.size());

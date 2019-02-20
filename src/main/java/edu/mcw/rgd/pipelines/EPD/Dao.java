@@ -255,7 +255,7 @@ public class Dao {
         return associationDAO.deleteAssociations(assoc.getMasterRgdId(), assoc.getDetailRgdId(), assoc.getAssocType());
     }
 
-    public void insertSequence(Sequence2 seq) throws Exception {
+    public void insertSequence(Sequence seq) throws Exception {
 
         if( seq.getRgdId()==0 ) {
             throw new EpdDaoException("cannot insert a sequence with RGD_ID=0");
@@ -264,7 +264,7 @@ public class Dao {
         logSeq.debug("INSERT "+seq.dump("|"));
     }
 
-    public int deleteSequence(Sequence2 seq) throws Exception {
+    public int deleteSequence(Sequence seq) throws Exception {
         if( seq.getRgdId()==0 ) {
             throw new EpdDaoException("cannot delete a sequence with RGD_ID=0");
         }
@@ -273,8 +273,8 @@ public class Dao {
         return r;
     }
 
-    public List<Sequence2> getSequences(int rgdId) throws Exception {
-        return sequenceDAO.getObjectSequences2(rgdId);
+    public List<Sequence> getSequences(int rgdId) throws Exception {
+        return sequenceDAO.getObjectSequences(rgdId);
     }
 
     public Chromosome getChromosome(String locus) throws Exception {
