@@ -1,3 +1,6 @@
+v. 0.9.6, as of Feb 20, 2019
+  updated dependencies
+
 v. 0.9.5, as of Sep 28, 2018
   moved from subversion to github
 

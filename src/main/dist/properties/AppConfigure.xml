@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD ver. 0.9.5, build Sep 28, 2018"/>
+        <property name="version" value="EPD ver. 0.9.6, build Feb 20, 2019"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
