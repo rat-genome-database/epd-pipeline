@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD ver. 0.9.6, build Feb 20, 2019"/>
+        <property name="version" value="EPD  -- build Dec 20, 2019"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
@@ -14,6 +14,9 @@
                 <value>ftp://ccg.vital-it.ch/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
+
+                <value>ftp://ccg.vital-it.ch/epdnew/M_musculus_nc/current/MmNC_EPDnew.dat</value>
+                <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens_nc/current/HsNC_EPDnew.dat</value>
             </list>
         </property>
         <property name="staleXdbIdsDeleteThreshold" value="8%" />
