@@ -1,11 +1,13 @@
 package edu.mcw.rgd.pipelines.EPD;
 
+import edu.mcw.rgd.datamodel.Association;
 import edu.mcw.rgd.datamodel.GenomicElement;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.pipelines.RecordProcessor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+
+import java.util.Date;
 
 /**
  * @author mtutaj
@@ -14,8 +16,9 @@ import org.apache.commons.logging.LogFactory;
 public class LoadProcessor extends RecordProcessor {
 
     private Dao dao;
+    private String srcPipeline;
 
-    protected final Log newPromoterLogger = LogFactory.getLog("insert_promoter");
+    protected final Logger newPromoterLogger = Logger.getLogger("insert_promoter");
 
     @Override
     public void process(PipelineRecord pipelineRecord) throws Exception {
@@ -66,9 +69,6 @@ public class LoadProcessor extends RecordProcessor {
         // sync xdb ids
         rec.getXdbIds().sync(promoter.getRgdId(), getDao(), getSession());
 
-        // sync associations of promoter to gene
-        rec.getGeneAssocs().sync(promoter.getRgdId(), getDao(), getSession());
-
         rec.getAlternativePromoterAssocs().sync(promoter.getRgdId(), notes);
         rec.getAlternativePromoterAssocs().incrementCounters(getSession(), "ALT_PROMOTER_ASSOC_");
 
@@ -77,6 +77,17 @@ public class LoadProcessor extends RecordProcessor {
 
         // sync sequences
         rec.getSeq().sync(promoter.getRgdId(), getDao(), getSession());
+
+        // create promoter_to_gene association
+        if( rec.getGene()!=null ) {
+            Association assoc = new Association();
+            assoc.setAssocType("promoter_to_gene");
+            assoc.setDetailRgdId(rec.getGene().getRgdId());
+            assoc.setMasterRgdId(promoter.getRgdId());
+            assoc.setCreationDate(new Date());
+            assoc.setSrcPipeline(getSrcPipeline());
+            GeneAssociationCollection.getInstance().addIncoming(assoc);
+        }
     }
 
     public Dao getDao() {
@@ -85,5 +96,13 @@ public class LoadProcessor extends RecordProcessor {
 
     public void setDao(Dao dao) {
         this.dao = dao;
+    }
+
+    public String getSrcPipeline() {
+        return srcPipeline;
+    }
+
+    public void setSrcPipeline(String srcPipeline) {
+        this.srcPipeline = srcPipeline;
     }
 }

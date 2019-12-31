@@ -2,9 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.datamodel.ontology.Annotation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +23,9 @@ public class Dao {
     private GenomicElementDAO genomicElementDAO = new GenomicElementDAO();
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
-    protected final Log logSeq = LogFactory.getLog("sequences");
-    protected final Log logXdbIds = LogFactory.getLog("xdb_ids");
+    Logger logAssocGenes = Logger.getLogger("assoc_genes");
+    Logger logSeq = Logger.getLogger("sequences");
+    Logger logXdbIds = Logger.getLogger("xdb_ids");
 
 
     /**
@@ -240,6 +239,11 @@ public class Dao {
         return associationDAO.getAssociationsForMasterRgdId(masterRgdId, assocType);
     }
 
+    public List<Association> getAssociations(String assocType, String source) throws Exception {
+
+        return associationDAO.getAssociationsByTypeAndSource(assocType, source);
+    }
+
     /**
      * insert a new association into RGD_ASSOCIATIONS table; assoc_key will be automatically taken from database sequence
      * <p>Note: assoc_key and assoc_subkey are always made lower-case and src_pipeline is always made uppercase</p>
@@ -248,10 +252,13 @@ public class Dao {
      * @throws Exception when unexpected error in spring framework occurs
      */
     public int insertAssociation( Association assoc ) throws Exception {
-        return associationDAO.insertAssociation(assoc);
+        int assocKey = associationDAO.insertAssociation(assoc);
+        logAssocGenes.info("INSERT "+assoc.dump("|"));
+        return assocKey;
     }
 
     public int deleteAssociation( Association assoc ) throws Exception {
+        logAssocGenes.info("DELETE "+assoc.dump("|"));
         return associationDAO.deleteAssociations(assoc.getMasterRgdId(), assoc.getDetailRgdId(), assoc.getAssocType());
     }
 

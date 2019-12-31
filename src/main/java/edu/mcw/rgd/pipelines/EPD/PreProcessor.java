@@ -3,8 +3,7 @@ package edu.mcw.rgd.pipelines.EPD;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.pipelines.RecordPreprocessor;
 import edu.mcw.rgd.process.FileDownloader;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Date;
@@ -22,7 +21,7 @@ public class PreProcessor extends RecordPreprocessor {
     private Dao dao;
     private String srcPipeline;
 
-    protected final Log logger = LogFactory.getLog("status");
+    protected final Logger logger = Logger.getLogger("status");
     private Map<String, String> experimentEvidences;
 
 

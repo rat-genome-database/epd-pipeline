@@ -1,9 +1,9 @@
 package edu.mcw.rgd.pipelines.EPD;
 
+import edu.mcw.rgd.dao.impl.AssociationDAO;
 import edu.mcw.rgd.pipelines.PipelineManager;
 import edu.mcw.rgd.process.Utils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -19,12 +19,13 @@ public class Manager {
     private Dao dao;
     private String version;
 
-    protected final Log logger = LogFactory.getLog("status");
+    protected final Logger logger = Logger.getLogger("status");
     private LocusInfoManager locusInfoManager;
 
     private static Manager manager = null;
-    private String epdFileName;
+    private List<String> epdFileNames;
     private List<String> epdNewFileNames;
+    private List<String> epdNewNcFileNames;
     private String staleXdbIdsDeleteThreshold;
 
     public static void main(String[] args) throws Exception {
@@ -54,27 +55,45 @@ public class Manager {
      */
     public void run() throws Exception {
 
+        long time0 = System.currentTimeMillis();
+
         logger.info(getVersion());
 
-        Date startDate = Utils.addDaysToDate(new Date(), -2); // remove stale XDB_IDS that are older than 2 days
-        // Note: if we use current date as the cutoff date, freshly added/modified xdb ids could be incorrectly
-        //    classified as stale and dropped! Apparently there is some issue with passing to Oracle the right
-        //    cutoff date and time; however, the workaround proposed works nad stale xdb ids are handled properly :-)
-        int staleXdbIdsDeleted;
+        Date startDate = Utils.addHoursToDate(new Date(), -2); // remove stale XDB_IDS that are older than 2 hours
+        // Note: if we use current timestamp as the cutoff timestamp, freshly added/modified xdb ids could be incorrectly
+        //    classified as stale and dropped! (due to possible clock differences between db and app servers)
+
+
+        String[] sources = {"EPD", "EPDNEW"};
 
         // process old EPD file
-        run("EPD", getEpdFileName());
-
-        staleXdbIdsDeleted = dao.deleteStaleXdbIds(startDate, "EPD", getStaleXdbIdsDeleteThreshold());
-        System.out.println("stale xdb ids deleted for EPD: "+staleXdbIdsDeleted);
-        System.out.println();
+        run("EPD", getEpdFileNames(), startDate);
 
         // process EPDNEW files
-        for( String epdNewFileName: getEpdNewFileNames() ) {
-            run("EPDNEW", epdNewFileName);
+        run("EPDNEW", getEpdNewFileNames(), startDate);
+
+        if( false ) {
+            run("EPDNEWNC", getEpdNewNcFileNames(), startDate);
         }
-        staleXdbIdsDeleted = dao.deleteStaleXdbIds(startDate, "EPDNEW", getStaleXdbIdsDeleteThreshold());
-        System.out.println("stale xdb ids deleted for EPDNEW: "+staleXdbIdsDeleted);
+
+
+        // post processing
+        // ---
+        // 'promoter_to_gene' associations
+        GeneAssociationCollection.getInstance().qc(dao, sources);
+
+        System.out.println("=== OK ===  elapsed  "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+    }
+
+    void run(String srcPipeline, List<String> epdFileNames, Date cutoffDate) throws Exception {
+
+        for( String epdFileName: epdFileNames ) {
+            run(srcPipeline, epdFileName);
+        }
+
+        int staleXdbIdsDeleted = dao.deleteStaleXdbIds(cutoffDate, srcPipeline, getStaleXdbIdsDeleteThreshold());
+        System.out.println("stale xdb ids deleted for "+srcPipeline+": "+staleXdbIdsDeleted);
+        System.out.println();
     }
 
     public void run(String srcPipeline, String fileName) throws Exception {
@@ -87,6 +106,7 @@ public class Manager {
 
         preProcessor.setSrcPipeline(srcPipeline);
         qcProcessor.setSrcPipeline(srcPipeline);
+        loadProcessor.setSrcPipeline(srcPipeline);
 
         preProcessor.setFileName(fileName);
 
@@ -149,12 +169,12 @@ public class Manager {
         return locusInfoManager;
     }
 
-    public void setEpdFileName(String epdFileName) {
-        this.epdFileName = epdFileName;
+    public void setEpdFileNames(List<String> epdFileNames) {
+        this.epdFileNames = epdFileNames;
     }
 
-    public String getEpdFileName() {
-        return epdFileName;
+    public List<String> getEpdFileNames() {
+        return epdFileNames;
     }
 
     public void setEpdNewFileNames(List<String> epdNewFileNames) {
@@ -171,5 +191,13 @@ public class Manager {
 
     public String getStaleXdbIdsDeleteThreshold() {
         return staleXdbIdsDeleteThreshold;
+    }
+
+    public void setEpdNewNcFileNames(List<String> epdNewNcFileNames) {
+        this.epdNewNcFileNames = epdNewNcFileNames;
+    }
+
+    public List<String> getEpdNewNcFileNames() {
+        return epdNewNcFileNames;
     }
 }

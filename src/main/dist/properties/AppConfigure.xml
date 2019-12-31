@@ -1,20 +1,27 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD  -- build Dec 20, 2019"/>
+        <property name="version" value="EPD  -- build Dec 31, 2019"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
         <property name="dao" ref="dao"/>
         <property name="locusInfoManager" ref="locusInfoManager" />
-        <property name="epdFileName" value="ftp://ccg.vital-it.ch/epd/current/epd.dat"/>
+        <property name="epdFileNames">
+            <list>
+                <value>ftp://ccg.vital-it.ch/epd/current/epd.dat</value>
+            </list>
+        </property>
         <property name="epdNewFileNames">
             <list>
                 <value>ftp://ccg.vital-it.ch/epdnew/C_familiaris/current/Cf_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
-
+            </list>
+        </property>
+        <property name="epdNewNcFileNames">
+            <list>
                 <value>ftp://ccg.vital-it.ch/epdnew/M_musculus_nc/current/MmNC_EPDnew.dat</value>
                 <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens_nc/current/HsNC_EPDnew.dat</value>
             </list>
@@ -54,7 +61,7 @@
 	</bean>
 
     <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.EPD.QCProcessor">
-        <property name="qcThreadCount" value="5"/>
+        <property name="qcThreadCount" value="10"/>
         <property name="soAccId" value="SO:0000170" /> <!-- polymerase II promoter -->
     </bean>
 

@@ -63,9 +63,6 @@ public class QCProcessor extends RecordProcessor {
         // run QC for xdbids
         rec.getXdbIds().qc(promoter.getRgdId(), getSrcPipeline(), getDao());
 
-        // run QC for associations
-        rec.getGeneAssocs().qc(promoter.getRgdId(), getDao());
-
         // run QC for genomic position
         for( MapsDataCollection md: rec.mds.values() ) {
             md.qc(promoter.getRgdId());
@@ -153,17 +150,8 @@ public class QCProcessor extends RecordProcessor {
                 break;
         }
 
-        if( rec.getGene()!=null ) {
-            // create association for every gene id
-            Association assoc = new Association();
-            assoc.setAssocType("promoter_to_gene");
-            assoc.setDetailRgdId(rec.getGene().getRgdId());
-            assoc.setCreationDate(new Date());
-            assoc.setSrcPipeline(getSrcPipeline());
-            rec.getGeneAssocs().addIncomingObject(assoc);
-        } else {
-
-            getSession().incrementCounter("GENEID_NO_MATCH", 1);
+        if( rec.getGene()==null ) {
+            getSession().incrementCounter("MATCH_NO_MATCH", 1);
         }
     }
 

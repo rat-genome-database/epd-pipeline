@@ -33,7 +33,6 @@ public class EPDRecord extends PipelineRecord {
 
     private GenomicElement promoter = new GenomicElement();
     private ExpressionDataCollection attrs = new ExpressionDataCollection();
-    private GeneAssociationCollection gassocs = new GeneAssociationCollection();
     private AlternativePromoterCollection apassocs = new AlternativePromoterCollection();
     private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
     private XdbIdCollection xdbIds = new XdbIdCollection();
@@ -70,10 +69,6 @@ public class EPDRecord extends PipelineRecord {
 
     public ExpressionDataCollection getAttrs() {
         return attrs;
-    }
-
-    public GeneAssociationCollection getGeneAssocs() {
-        return gassocs;
     }
 
     public AssociationCollection getAlternativePromoterAssocs() {
