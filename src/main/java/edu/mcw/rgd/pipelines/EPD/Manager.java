@@ -1,6 +1,5 @@
 package edu.mcw.rgd.pipelines.EPD;
 
-import edu.mcw.rgd.dao.impl.AssociationDAO;
 import edu.mcw.rgd.pipelines.PipelineManager;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;

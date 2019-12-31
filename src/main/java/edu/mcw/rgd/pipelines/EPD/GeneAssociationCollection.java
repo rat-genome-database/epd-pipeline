@@ -1,12 +1,10 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.Association;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author mtutaj
@@ -61,15 +59,12 @@ public class GeneAssociationCollection {
         }
 
         // determine new associations for insertion
-        List<Association> forInsert = new ArrayList<>(incoming);
-        forInsert.removeAll(inRgdAssocs);
+        Collection<Association> forInsert = CollectionUtils.subtract(incoming, inRgdAssocs);
 
         // determine new associations for deletion
-        List<Association> forDelete = new ArrayList<>(inRgdAssocs);
-        forDelete.removeAll(incoming);
+        Collection<Association> forDelete = CollectionUtils.subtract(inRgdAssocs, incoming);
 
-        List<Association> matching = new ArrayList<>(inRgdAssocs);
-        matching.retainAll(incoming);
+        Collection<Association> matching = CollectionUtils.intersection(inRgdAssocs, incoming);
 
 
         // update the database
@@ -87,13 +82,9 @@ public class GeneAssociationCollection {
             log.info("GENE_ASSOC_DELETED: "+forDelete.size());
         }
 
-        int matchingAssocs = incoming.size() - forInsert.size();
+        int matchingAssocs = matching.size();
         if( matchingAssocs!=0 ) {
             log.info("GENE_ASSOC_MATCHED: "+matchingAssocs);
-        }
-        if( matchingAssocs!=matching.size() ) {
-            log.warn("mismatch in GENE_ASSOC_MATCHED: "+matchingAssocs+" "+matching.size());
-            System.out.println("mismatch in GENE_ASSOC_MATCHED: "+matchingAssocs+" "+matching.size());
         }
     }
 }
