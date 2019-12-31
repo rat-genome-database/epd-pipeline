@@ -2,6 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.GenomicElement;
+import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.process.Utils;
 
@@ -37,7 +38,7 @@ public class EPDRecord extends PipelineRecord {
     private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
     private XdbIdCollection xdbIds = new XdbIdCollection();
     Map<Integer, MapsDataCollection> mds = new HashMap<>();
-    private SequenceCollection seq = new SequenceCollection();
+    List<Sequence> seqs = new ArrayList<>();
 
     private String altPromoterInfo; // informational text about
     private List<String> altPromoters; // list of acc ids of alternative promoters
@@ -83,8 +84,8 @@ public class EPDRecord extends PipelineRecord {
         return xdbIds;
     }
 
-    public SequenceCollection getSeq() {
-        return seq;
+    public void addSeq(Sequence seq) {
+        seqs.add(seq);
     }
 
     public Dao getDao() {

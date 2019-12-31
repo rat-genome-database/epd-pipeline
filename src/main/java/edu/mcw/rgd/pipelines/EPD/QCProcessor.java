@@ -68,9 +68,6 @@ public class QCProcessor extends RecordProcessor {
             md.qc(promoter.getRgdId());
         }
 
-        // run QC for sequence
-        rec.getSeq().qc(promoter.getRgdId(), getDao());
-
         qcAlternativePromoters(rec);
         qcNeighboringPromoters(rec);
     }
@@ -135,6 +132,8 @@ public class QCProcessor extends RecordProcessor {
         // try to match REFSEQ nucleotide ids first
         List<String> ids = new ArrayList<String>();
         ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_GENEBANKNU));
+        // then by ENSEMBL ids
+        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_ENSEMBL_GENES));
         // then by MGD ids
         ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_MGD));
         // then by SWISS-PROT ids
@@ -149,24 +148,38 @@ public class QCProcessor extends RecordProcessor {
             if( matchGene(geneId, rec) )
                 break;
         }
-
-        if( rec.getGene()==null ) {
-            getSession().incrementCounter("MATCH_NO_MATCH", 1);
-        }
     }
 
     boolean matchGene(String geneId, EPDRecord rec) throws Exception {
+
+        rec.setGene(null);
 
         // match by REFSEQ nucleotide
         List<Gene> genesByNucleotideId = dao.getGenesByNucleotideId(geneId, rec.getPromoter().getSpeciesTypeKey());
         removeGenesWithNonMatchingPositions(genesByNucleotideId, rec);
         if( !genesByNucleotideId.isEmpty() ) {
 
-            if( rec.getGene()==null ) {
-                rec.setGene(genesByNucleotideId.get(0));
-                getSession().incrementCounter("MATCH_BY_REFSEQ", 1);
-                return true;
+            rec.setGene(genesByNucleotideId.get(0));
+            getSession().incrementCounter("MATCH_TIER1_BY_REFSEQ_ID", 1);
+
+            if( genesByNucleotideId.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_REFSEQ_ID", 1);
             }
+            return true;
+        }
+
+        // match by ensembl gene
+        List<Gene> genesByEnsemblId = dao.getGenesByEnsemblId(geneId, rec.getPromoter().getSpeciesTypeKey());
+        removeGenesWithNonMatchingPositions(genesByEnsemblId, rec);
+        if( !genesByEnsemblId.isEmpty() ) {
+
+            rec.setGene(genesByEnsemblId.get(0));
+            getSession().incrementCounter("MATCH_TIER2_BY_ENSEMBL_ID", 1);
+
+            if( genesByEnsemblId.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_ENSEMBL_ID", 1);
+            }
+            return true;
         }
 
         // match by swissprot
@@ -174,11 +187,13 @@ public class QCProcessor extends RecordProcessor {
         removeGenesWithNonMatchingPositions(genesByProteinId, rec);
         if( !genesByProteinId.isEmpty() ) {
 
-            if( rec.getGene()==null ) {
-                rec.setGene(genesByProteinId.get(0));
-                getSession().incrementCounter("MATCH_BY_PROTEIN_ID", 1);
-                return true;
+            rec.setGene(genesByProteinId.get(0));
+            getSession().incrementCounter("MATCH_TIER3_BY_UNIPROT_ID", 1);
+
+            if( genesByProteinId.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_UNIPROT_ID", 1);
             }
+            return true;
         }
 
         // match by MGD Id
@@ -186,39 +201,27 @@ public class QCProcessor extends RecordProcessor {
         removeGenesWithNonMatchingPositions(genesByMgdId, rec);
         if( !genesByMgdId.isEmpty() ) {
 
-            if( rec.getGene()==null ) {
-                rec.setGene(genesByMgdId.get(0));
-                getSession().incrementCounter("MATCH_BY_MGD_ID", 1);
-                return true;
-            }
-        }
+            rec.setGene(genesByMgdId.get(0));
+            getSession().incrementCounter("MATCH_TIER4_BY_MGD_ID", 1);
 
-        // match by gene position
-        /*
-        List<Gene> genesByPos = null;
-        for( MapData md: (List<MapData>) rec.getMapsData().getIncomingList() ) {
-            genesByPos = dao.getGenesByPosition(md.getChromosome(), md.getStartPos()-10000, md.getStopPos()+10000, rec.getPromoter().getSpeciesTypeKey());
-            if( !genesByPos.isEmpty() ) {
-                if( genesByPos.size()==1 ) {
-                    rec.setGene(genesByPos.get(0));
-                    getSession().incrementCounter("MATCH_BY_GENE_POS", 1);
-                    return true;
-                }
-                break;
+            if( genesByMgdId.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_MGD_ID", 1);
             }
+            return true;
         }
-        */
 
         // match by symbol and optionally position
         List<Gene> genesBySymbol = dao.getGenesBySymbol(geneId, rec.getPromoter().getSpeciesTypeKey());
         removeGenesWithNonMatchingPositions(genesBySymbol, rec);
         if( !genesBySymbol.isEmpty() ) {
 
-            if( rec.getGene()==null ) {
-                rec.setGene(genesBySymbol.get(0));
-                getSession().incrementCounter("MATCH_BY_GENE_SYMBOL", 1);
-                return true;
+            rec.setGene(genesBySymbol.get(0));
+            getSession().incrementCounter("MATCH_TIER5_BY_GENE_SYMBOL", 1);
+
+            if( genesBySymbol.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_GENE_SYMBOL", 1);
             }
+            return true;
         }
 
 
@@ -227,13 +230,16 @@ public class QCProcessor extends RecordProcessor {
         removeGenesWithNonMatchingPositions(genesByAlias, rec);
         if( !genesByAlias.isEmpty() ) {
 
-            if( rec.getGene()==null ) {
-                rec.setGene(genesByAlias.get(0));
-                getSession().incrementCounter("MATCH_BY_GENE_ALIAS", 1);
-                return true;
+            rec.setGene(genesByAlias.get(0));
+            getSession().incrementCounter("MATCH_TIER6_BY_GENE_ALIAS", 1);
+
+            if( genesByAlias.size()>1 ) {
+                getSession().incrementCounter("MULTIMATCH_BY_GENE_ALIAS", 1);
             }
+            return true;
         }
 
+        getSession().incrementCounter("MATCH_TIER7_NO_MATCH", 1);
         return false;
     }
 

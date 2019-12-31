@@ -1,6 +1,7 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.dao.impl.*;
+import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
 import org.apache.log4j.Logger;
 
@@ -123,18 +124,23 @@ public class Dao {
 
     public List<Gene> getGenesByMgdId(String mgdId, int speciesTypeKey) throws Exception {
 
-        return xdbDAO.getGenesByXdbId(XdbId.XDB_KEY_MGD, mgdId);
+        return xdbDAO.getActiveGenesByXdbId(XdbId.XDB_KEY_MGD, mgdId);
     }
 
     public List<Gene> getGenesByProteinId(String proteinId, int speciesTypeKey) throws Exception {
 
-        return xdbDAO.getGenesByXdbId(XdbId.XDB_KEY_UNIPROT, proteinId);
+        return xdbDAO.getActiveGenesByXdbId(XdbId.XDB_KEY_UNIPROT, proteinId);
+    }
+
+    public List<Gene> getGenesByEnsemblId(String ensemblId, int speciesTypeKey) throws Exception {
+
+        return xdbDAO.getActiveGenesByXdbId(XdbId.XDB_KEY_ENSEMBL_GENES, ensemblId);
     }
 
     public List<Gene> getGenesByNucleotideId(String nuclId, int speciesTypeKey) throws Exception {
 
-        List<Gene> genes1 = xdbDAO.getGenesByXdbId(XdbId.XDB_KEY_GENEBANKNU, nuclId);
-        List<Gene> genes2 = xdbDAO.getGenesByXdbId(XdbId.XDB_KEY_NCBI_NU, nuclId);
+        List<Gene> genes1 = xdbDAO.getActiveGenesByXdbId(XdbId.XDB_KEY_GENEBANKNU, nuclId);
+        List<Gene> genes2 = xdbDAO.getActiveGenesByXdbId(XdbId.XDB_KEY_NCBI_NU, nuclId);
 
         // merge genes
         if( genes2.isEmpty() )
@@ -272,16 +278,37 @@ public class Dao {
     }
 
     public int deleteSequence(Sequence seq) throws Exception {
-        if( seq.getRgdId()==0 ) {
-            throw new EpdDaoException("cannot delete a sequence with RGD_ID=0");
+
+        if( seq.getSeqKey()==0 ) {
+            // ensure seq_key is loaded
+            List<Sequence> seqs = sequenceDAO.getObjectSequences(seq.getRgdId(), "promoter_region");
+            for( Sequence seqInRgd: seqs ) {
+                if( seqInRgd.getSeqMD5().equals(seq.getSeqMD5()) ) {
+                    seq.setSeqKey(seqInRgd.getSeqKey());
+                }
+            }
+            if( seq.getSeqKey()==0 ) {
+                throw new EpdDaoException("cannot find 'promoter_region' sequence for RGD:" + seq.getRgdId());
+            }
         }
+
         int r = sequenceDAO.deleteSequence(seq);
         logSeq.debug("DELETE "+(r!=0?"OK":"FAILED")+" "+seq.dump("|"));
         return r;
     }
 
-    public List<Sequence> getSequences(int rgdId) throws Exception {
-        return sequenceDAO.getObjectSequences(rgdId);
+    public List<Sequence> getPromoterSequences() throws Exception {
+
+        List<IntStringMapQuery.MapPair> md5s = sequenceDAO.getMD5ForObjectSequences(RgdId.OBJECT_KEY_PROMOTERS, "promoter_region");
+        List<Sequence> seqs = new ArrayList<>(md5s.size());
+        for( IntStringMapQuery.MapPair pair: md5s ) {
+            Sequence seq = new Sequence();
+            seq.setRgdId(pair.keyValue);
+            seq.setSeqMD5(pair.stringValue);
+            seq.setSeqType("promoter_region");
+            seqs.add(seq);
+        }
+        return seqs;
     }
 
     public Chromosome getChromosome(String locus) throws Exception {

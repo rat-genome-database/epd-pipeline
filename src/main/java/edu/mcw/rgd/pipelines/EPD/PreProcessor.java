@@ -431,6 +431,24 @@ public class PreProcessor extends RecordPreprocessor {
             return true;
         }
 
+        // DR   Ensembl; ENSCAFG00000000029.
+        if( line.startsWith("DR   Ensembl; ENS") ) {
+            // extract ensembl acc id
+            int pos1 = line.indexOf(';');
+            int pos2 = line.indexOf('.', pos1 + 1);
+            if( pos1>0 && pos2>0 ) {
+                String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
+                XdbId xdbId = new XdbId();
+                xdbId.setAccId(accId);
+                xdbId.setCreationDate(new Date());
+                xdbId.setModificationDate(xdbId.getCreationDate());
+                xdbId.setSrcPipeline(getSrcPipeline());
+                xdbId.setXdbKey(XdbId.XDB_KEY_ENSEMBL_GENES);
+                rec.getXdbIds().addIncomingObject(xdbId);
+            }
+            return true;
+        }
+
         // DR   EPD; EP59001; MM_GPT_5; alternative promoter; [+513; +].
         if( line.contains("EPD;") ) {
             // extract EPD acc id
@@ -441,8 +459,8 @@ public class PreProcessor extends RecordPreprocessor {
                 rec.addAltPromoter(accId);
             }
             return true;
-
         }
+
         return true;
     }
 
@@ -669,7 +687,7 @@ public class PreProcessor extends RecordPreprocessor {
         Sequence seq = new Sequence();
         seq.setSeqData(line.substring(2).trim());
         seq.setSeqType("promoter_region");
-        rec.getSeq().addIncomingObject(seq);
+        rec.addSeq(seq);
         return true;
     }
 

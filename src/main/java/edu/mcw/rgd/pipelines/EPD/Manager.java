@@ -80,6 +80,8 @@ public class Manager {
         // ---
         // 'promoter_to_gene' associations
         GeneAssociationCollection.getInstance().qc(dao, sources);
+        // 'promoter_region' sequences
+        SequenceCollection.getInstance().qc(dao);
 
         System.out.println("=== OK ===  elapsed  "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }

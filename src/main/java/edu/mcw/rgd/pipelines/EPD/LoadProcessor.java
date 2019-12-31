@@ -2,6 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.Association;
 import edu.mcw.rgd.datamodel.GenomicElement;
+import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.pipelines.RecordProcessor;
@@ -76,7 +77,7 @@ public class LoadProcessor extends RecordProcessor {
         rec.getNeighboringPromoterAssocs().incrementCounters(getSession(), "NEIGHBOR_PROMOTER_ASSOC_");
 
         // sync sequences
-        rec.getSeq().sync(promoter.getRgdId(), getDao(), getSession());
+        qcSequences(rec, promoter.getRgdId());
 
         // create promoter_to_gene association
         if( rec.getGene()!=null ) {
@@ -87,6 +88,13 @@ public class LoadProcessor extends RecordProcessor {
             assoc.setCreationDate(new Date());
             assoc.setSrcPipeline(getSrcPipeline());
             GeneAssociationCollection.getInstance().addIncoming(assoc);
+        }
+    }
+
+    void qcSequences(EPDRecord rec, int rgdId) throws Exception {
+        for( Sequence seq: rec.seqs ) {
+            seq.setRgdId(rgdId);
+            SequenceCollection.getInstance().addIncoming(seq);
         }
     }
 
