@@ -57,11 +57,7 @@ public class LoadProcessor extends RecordProcessor {
         // sync map positions and position statistics
         String notes = "created by EPD pipeline for " + promoter.getSymbol() + ", " + new java.util.Date();
 
-        // sync maps_data
-        for( MapsDataCollection md: rec.mds.values() ) {
-            md.sync(promoter.getRgdId(), notes);
-            md.incrementCounters(getSession(), "MAPS_DATA_");
-        }
+        rec.setRgdIdForMapData(promoter.getRgdId(), notes);
 
         // sync expression data
         rec.getAttrs().sync(promoter.getRgdId(), notes);

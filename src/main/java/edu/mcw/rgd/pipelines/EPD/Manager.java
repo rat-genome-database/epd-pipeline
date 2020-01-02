@@ -78,8 +78,11 @@ public class Manager {
 
         // post processing
         // ---
+        MapsDataCollection.getInstance().qc(dao, sources);
+
         // 'promoter_to_gene' associations
         GeneAssociationCollection.getInstance().qc(dao, sources);
+
         // 'promoter_region' sequences
         SequenceCollection.getInstance().qc(dao);
 

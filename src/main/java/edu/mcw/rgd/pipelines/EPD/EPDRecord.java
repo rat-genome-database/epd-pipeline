@@ -1,9 +1,6 @@
 package edu.mcw.rgd.pipelines.EPD;
 
-import edu.mcw.rgd.datamodel.Gene;
-import edu.mcw.rgd.datamodel.GenomicElement;
-import edu.mcw.rgd.datamodel.Sequence;
-import edu.mcw.rgd.datamodel.XdbId;
+import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.process.Utils;
 
@@ -38,7 +35,7 @@ public class EPDRecord extends PipelineRecord {
     private AlternativePromoterCollection apassocs = new AlternativePromoterCollection();
     private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
     private List<XdbId> xdbIds = new ArrayList<>();
-    Map<Integer, MapsDataCollection> mds = new HashMap<>();
+    private List<MapData> mds = new ArrayList<>();
     List<Sequence> seqs = new ArrayList<>();
 
     private String altPromoterInfo; // informational text about
@@ -89,6 +86,22 @@ public class EPDRecord extends PipelineRecord {
         }
     }
 
+    public void addMapData(MapData md) {
+        mds.add(md);
+    }
+
+    public void setRgdIdForMapData(int rgdId, String notes) {
+        for( MapData md: mds ) {
+            md.setRgdId(rgdId);
+            md.setNotes(notes);
+            MapsDataCollection.getInstance().addIncoming(md);
+        }
+    }
+
+    public List<MapData> getMapData() {
+        return mds;
+    }
+
     public GenomicElement getPromoter() {
         return promoter;
     }
@@ -118,10 +131,6 @@ public class EPDRecord extends PipelineRecord {
         attrs.setDao(dao);
         apassocs.setDao(dao);
         npassocs.setDao(dao);
-
-        for( MapsDataCollection md: mds.values() ) {
-            md.setDao(dao);
-        }
     }
 
     public Gene getGene() {

@@ -557,14 +557,7 @@ public class PreProcessor extends RecordPreprocessor {
                 md.setStopPos(md.getStartPos()+60);
                 // note: sequence line shows a short sequence segment corresponding to the -49 to +10 region of the promoter
 
-                MapsDataCollection mdCollection = rec.mds.get(md.getMapKey());
-                if( mdCollection==null ) {
-                    mdCollection = new MapsDataCollection();
-                    mdCollection.setDao(getDao());
-                    mdCollection.setMapKey(md.getMapKey());
-                    rec.mds.put(md.getMapKey(), mdCollection);
-                }
-                mdCollection.addIncomingObject(md);
+                rec.addMapData(md);
             }
         } else {
             getSession().incrementCounter("MAPS_DATA_CANNOT_PARSE_NON_CHROMOSOME_LOCI", 1);

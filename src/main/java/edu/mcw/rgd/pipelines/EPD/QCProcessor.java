@@ -60,11 +60,6 @@ public class QCProcessor extends RecordProcessor {
 
         qcGeneIds(rec);
 
-        // run QC for genomic position
-        for( MapsDataCollection md: rec.mds.values() ) {
-            md.qc(promoter.getRgdId());
-        }
-
         qcAlternativePromoters(rec);
         qcNeighboringPromoters(rec);
     }
@@ -234,12 +229,17 @@ public class QCProcessor extends RecordProcessor {
 
     void removeGenesWithNonMatchingPositions(List<Gene> genes, EPDRecord rec) throws Exception {
 
-        for( MapsDataCollection md: rec.mds.values() ) {
-            int mapKey = md.getMapKey();
+        // determine available map keys
+        Set<Integer> mapKeys = new HashSet<>();
+        for( MapData md: rec.getMapData() ) {
+            mapKeys.add(md.getMapKey());
+        }
+
+        for( int mapKey: mapKeys ) {
             Iterator<Gene> it = genes.iterator();
             while (it.hasNext()) {
                 Gene gene = it.next();
-                if (!genePositionMatches(gene, md.getIncomingList(), mapKey)) {
+                if (!genePositionMatches(gene, rec.getMapData(), mapKey)) {
                     it.remove();
                 }
             }

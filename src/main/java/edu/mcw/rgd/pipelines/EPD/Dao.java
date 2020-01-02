@@ -22,6 +22,7 @@ public class Dao {
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
     Logger logAssocGenes = Logger.getLogger("assoc_genes");
+    Logger logMapPos = Logger.getLogger("genomic_pos");
     Logger logSeq = Logger.getLogger("sequences");
     Logger logXdbIds = Logger.getLogger("xdb_ids");
 
@@ -210,15 +211,32 @@ public class Dao {
     }
 
     public int insertMapData(List<MapData> mds) throws Exception {
+        for( MapData md: mds ) {
+            logMapPos.debug("INSERT " +md.dump("|"));
+        }
         return mapDAO.insertMapData(mds);
     }
 
-    public int updateMapData(List<MapData> mds) throws Exception {
-        return mapDAO.updateMapData(mds);
+    public int deleteMapData(List<MapData> mds) throws Exception {
+        for( MapData md: mds ) {
+            logMapPos.debug("DELETE " +md.dump("|"));
+        }
+        return mapDAO.deleteMapData(mds);
     }
 
-    public int deleteMapData(List<MapData> mds) throws Exception {
-        return mapDAO.deleteMapData(mds);
+    public List<MapData> getMapData(String[] srcPipelines) throws Exception {
+
+        List<MapData> mds = new ArrayList<>();
+
+        for( String srcPipeline: srcPipelines ) {
+            mds.addAll(getMapDataForSource(srcPipeline));
+        }
+        return mds;
+    }
+
+    List<MapData> getMapDataForSource(String src) throws Exception {
+        String sql = "SELECT * FROM maps_data WHERE src_pipeline=?";
+        return mapDAO.executeMapDataQuery(sql, src);
     }
 
     public List<MapData> getMapData(int rgdId, int mapKey) throws Exception {
