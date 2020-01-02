@@ -1,10 +1,10 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.XdbId;
-import edu.mcw.rgd.pipelines.PipelineSession;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author mtutaj
@@ -13,86 +13,64 @@ import java.util.List;
  */
 public class XdbIdCollection {
 
-    private List<XdbId> incomingIds = new ArrayList<>();
-    private List<XdbId> forInsertIds = new ArrayList<>();
-    private List<XdbId> forDeleteIds = new ArrayList<>();
-    private List<XdbId> matchingIds = new ArrayList<>();
+    // THREAD SAFE SINGLETON -- start
+    // private instance, so that it can be accessed by only by getInstance() method
+    private static XdbIdCollection instance;
 
-    public List<String> getAccIds(int xdbKey) {
-        List<String> accIds = new ArrayList<>();
-        for( XdbId xdbId: incomingIds ) {
-            if( xdbId.getXdbKey()==xdbKey ) {
-                accIds.add(xdbId.getAccId());
-            }
-        }
-        return accIds;
+    private XdbIdCollection() {
+        // private constructor
     }
 
-    public void addIncomingObject(XdbId xdbId) {
-        incomingIds.add(xdbId);
+    //synchronized method to control simultaneous access
+    synchronized public static XdbIdCollection getInstance() {
+        if (instance == null) {
+            // if instance is null, initialize
+            instance = new XdbIdCollection();
+        }
+        return instance;
     }
+    // THREAD SAFE SINGLETON -- end
 
-    public void qc(int rgdId, String srcPipeline, Dao dao) throws Exception {
 
-        for( XdbId id: incomingIds ) {
-            id.setRgdId(rgdId);
-        }
+    Logger log = Logger.getLogger("status");
 
-        List<XdbId> inRgdIds = dao.getXdbIdsByRgdId(rgdId, srcPipeline);
+    private final Set<XdbId> incoming = new HashSet<>();
 
-        // determine new ids
-        for( XdbId idIncoming: incomingIds ) {
+    public void addIncoming(XdbId id) {
 
-            XdbId idInRgdFound = null;
-            for( XdbId idInRgd: inRgdIds ) {
-                if( idInRgd.equals(idIncoming) ) {
-                    idInRgdFound = idInRgd;
-                    break;
-                }
-            }
-
-            if( idInRgdFound==null ) {
-                forInsertIds.add(idIncoming);
-            } else {
-                matchingIds.add(idInRgdFound);
-            }
-        }
-
-        // determine to be deleted xdb ids
-        for( XdbId idInRgd: inRgdIds ) {
-
-            boolean inRgdIdMatchesIncoming = false;
-            for( XdbId idIncoming: incomingIds ) {
-                if( idInRgd.equals(idIncoming) ) {
-                    inRgdIdMatchesIncoming = true;
-                    break;
-                }
-            }
-
-            if( !inRgdIdMatchesIncoming ) {
-                forDeleteIds.add(idInRgd);
-            }
+        // there is only one instance of this class
+        synchronized (incoming) {
+            incoming.add(id);
         }
     }
 
-    public void sync(int rgdId, Dao dao, PipelineSession session) throws Exception {
+    synchronized public void qc(Dao dao, String[] sources, String staleIdsDeleteThreshold) throws Exception {
 
-        if( !forInsertIds.isEmpty() ) {
-            for( XdbId id: forInsertIds ) {
-                id.setRgdId(rgdId);
-            }
-            dao.insertXdbIds(forInsertIds);
-            session.incrementCounter("XDB_IDS_INSERTED", forInsertIds.size());
+        List<XdbId> xdbIdsInRgd = dao.getXdbIds(sources);
+
+        // determine xdb ids for insertion
+        Collection<XdbId> forInsert = CollectionUtils.subtract(incoming, xdbIdsInRgd);
+
+        // determine xdb ids for deletion
+        Collection<XdbId> forDelete = CollectionUtils.subtract(xdbIdsInRgd, incoming);
+
+        Collection<XdbId> matching = CollectionUtils.intersection(xdbIdsInRgd, incoming);
+
+
+        if( !forInsert.isEmpty() ) {
+            dao.insertXdbIds(forInsert);
+            log.info("XDB_IDS_INSERTED: "+forInsert.size());
         }
 
-        if( !forDeleteIds.isEmpty() ) {
-            dao.deleteXdbIds(forDeleteIds);
-            session.incrementCounter("XDB_IDS_DELETED", forDeleteIds.size());
+        if( !forDelete.isEmpty() ) {
+            dao.deleteXdbIds(forDelete, sources, staleIdsDeleteThreshold);
+            log.info("XDB_IDS_DELETED: "+forDelete.size());
         }
 
-        if( !matchingIds.isEmpty() ) {
-            dao.updateLastModDateForXdbIds(matchingIds);
-            session.incrementCounter("XDB_IDS_MATCHING", matchingIds.size());
+        int matchingXdbIds = matching.size();
+        if( matchingXdbIds!=0 ) {
+            dao.updateLastModDateForXdbIds(matching);
+            log.info("XDB_IDS_MATCHING: "+matchingXdbIds);
         }
     }
 }

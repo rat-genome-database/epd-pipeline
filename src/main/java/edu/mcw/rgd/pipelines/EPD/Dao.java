@@ -5,10 +5,7 @@ import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author mtutaj
@@ -153,34 +150,27 @@ public class Dao {
         return genes1;
     }
 
-    public List<XdbId> getXdbIdsByRgdId(int rgdId, String srcPipeline) throws Exception {
+    public List<XdbId> getXdbIds(String[] srcPipelines) throws Exception {
 
-        if( rgdId==0 ) {
-            return Collections.emptyList();
+        List<XdbId> xdbIds = new ArrayList<>();
+
+        for( String srcPipeline: srcPipelines ) {
+            XdbId filter = new XdbId();
+            filter.setSrcPipeline(srcPipeline);
+            xdbIds.addAll(xdbDAO.getXdbIds(filter));
         }
-
-        XdbId filter = new XdbId();
-        filter.setRgdId(rgdId);
-        filter.setSrcPipeline(srcPipeline);
-        return xdbDAO.getXdbIds(filter);
+        return xdbIds;
     }
 
-    public int insertXdbIds(List<XdbId> xdbIds) throws Exception {
-        int r = xdbDAO.insertXdbs(xdbIds);
+    public int insertXdbIds(Collection<XdbId> xdbIds) throws Exception {
+        int r = xdbDAO.insertXdbs(new ArrayList<>(xdbIds));
         for( XdbId xdbId: xdbIds ) {
             logXdbIds.debug("INSERT "+xdbId.dump("|"));
         }
         return r;
     }
 
-    public int deleteXdbIds(List<XdbId> xdbIds) throws Exception {
-        for( XdbId xdbId: xdbIds ) {
-            logXdbIds.debug("DELETE "+xdbId.dump("|"));
-        }
-        return xdbDAO.deleteXdbIds(xdbIds);
-    }
-
-    public int updateLastModDateForXdbIds(List<XdbId> xdbIds) throws Exception {
+    public int updateLastModDateForXdbIds(Collection<XdbId> xdbIds) throws Exception {
 
         List<Integer> keys = new ArrayList<>(xdbIds.size());
         for( XdbId id: xdbIds ) {
@@ -189,28 +179,30 @@ public class Dao {
         return xdbDAO.updateModificationDate(keys);
     }
 
-    public int deleteStaleXdbIds(Date cutoffDate, String srcPipeline, String deleteThresholdStr) throws Exception {
+    public int deleteXdbIds(Collection<XdbId> xdbIdsForDelete, String[] srcPipelines, String deleteThresholdStr) throws Exception {
 
         // extract delete threshold in percent
         int percentPos = deleteThresholdStr.indexOf('%');
         int deleteThreshold = Integer.parseInt(deleteThresholdStr.substring(0, percentPos));
 
-        int currentXdbIdCount = getCountOfXdbIdsForSrcPipeline(srcPipeline);
-        List<XdbId> staleXdbIds = xdbDAO.getXdbIdsModifiedBefore(cutoffDate, srcPipeline, SpeciesType.ALL);
+        int currentXdbIdCount = 0;
+        for( String srcPipeline: srcPipelines ) {
+            currentXdbIdCount += getCountOfXdbIdsForSrcPipeline(srcPipeline);
+        }
 
-        int xdbIdsForDeleteCount = staleXdbIds.size();
+        int xdbIdsForDeleteCount = xdbIdsForDelete.size();
         int xdbIdsForDeleteThreshold = (deleteThreshold * currentXdbIdCount) / 100; // 5% delete threshold
         if( xdbIdsForDeleteCount > xdbIdsForDeleteThreshold ) {
-            System.out.println(" STALE XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") -- "+xdbIdsForDeleteThreshold);
-            System.out.println(" STALE XDB IDS TAGGED FOR DELETE     -- "+xdbIdsForDeleteCount);
-            System.out.println(" STALE XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") EXCEEDED -- no xdb ids deleted");
+            System.out.println(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") -- "+xdbIdsForDeleteThreshold);
+            System.out.println(" XDB IDS TAGGED FOR DELETE     -- "+xdbIdsForDeleteCount);
+            System.out.println(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") EXCEEDED -- no xdb ids deleted");
             return 0;
         }
 
-        for( XdbId xdbId: staleXdbIds ) {
-            logXdbIds.info("DELETE STALE "+xdbId.dump("|"));
+        for( XdbId xdbId: xdbIdsForDelete ) {
+            logXdbIds.debug("DELETE "+xdbId.dump("|"));
         }
-        return xdbDAO.deleteXdbIds(staleXdbIds);
+        return xdbDAO.deleteXdbIds(new ArrayList<>(xdbIdsForDelete));
     }
 
     int getCountOfXdbIdsForSrcPipeline(String srcPipeline) throws Exception {

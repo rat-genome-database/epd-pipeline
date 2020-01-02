@@ -66,13 +66,13 @@ public class Manager {
         String[] sources = {"EPD", "EPDNEW"};
 
         // process old EPD file
-        run("EPD", getEpdFileNames(), startDate);
+        run("EPD", getEpdFileNames());
 
         // process EPDNEW files
-        run("EPDNEW", getEpdNewFileNames(), startDate);
+        run("EPDNEW", getEpdNewFileNames());
 
         if( false ) {
-            run("EPDNEWNC", getEpdNewNcFileNames(), startDate);
+            run("EPDNEWNC", getEpdNewNcFileNames());
         }
 
 
@@ -83,18 +83,16 @@ public class Manager {
         // 'promoter_region' sequences
         SequenceCollection.getInstance().qc(dao);
 
+        XdbIdCollection.getInstance().qc(dao, sources, getStaleXdbIdsDeleteThreshold());
+
         System.out.println("=== OK ===  elapsed  "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
 
-    void run(String srcPipeline, List<String> epdFileNames, Date cutoffDate) throws Exception {
+    void run(String srcPipeline, List<String> epdFileNames) throws Exception {
 
         for( String epdFileName: epdFileNames ) {
             run(srcPipeline, epdFileName);
         }
-
-        int staleXdbIdsDeleted = dao.deleteStaleXdbIds(cutoffDate, srcPipeline, getStaleXdbIdsDeleteThreshold());
-        System.out.println("stale xdb ids deleted for "+srcPipeline+": "+staleXdbIdsDeleted);
-        System.out.println();
     }
 
     public void run(String srcPipeline, String fileName) throws Exception {

@@ -3,6 +3,7 @@ package edu.mcw.rgd.pipelines.EPD;
 import edu.mcw.rgd.datamodel.Gene;
 import edu.mcw.rgd.datamodel.GenomicElement;
 import edu.mcw.rgd.datamodel.Sequence;
+import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.process.Utils;
 
@@ -36,7 +37,7 @@ public class EPDRecord extends PipelineRecord {
     private ExpressionDataCollection attrs = new ExpressionDataCollection();
     private AlternativePromoterCollection apassocs = new AlternativePromoterCollection();
     private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
-    private XdbIdCollection xdbIds = new XdbIdCollection();
+    private List<XdbId> xdbIds = new ArrayList<>();
     Map<Integer, MapsDataCollection> mds = new HashMap<>();
     List<Sequence> seqs = new ArrayList<>();
 
@@ -64,6 +65,30 @@ public class EPDRecord extends PipelineRecord {
         return true;
     }
 
+    public void addXdbId(XdbId xdbId) {
+        xdbIds.add(xdbId);
+    }
+
+    public List<String> getAccIds(int[] xdbKeys) {
+        List<String> accIds = new ArrayList<>();
+        for( int xdbKey: xdbKeys ) {
+            for( XdbId xdbId: xdbIds ) {
+                if( xdbId.getXdbKey()==xdbKey ) {
+                    accIds.add(xdbId.getAccId());
+                }
+            }
+            return accIds;
+        }
+        return accIds;
+    }
+
+    public void setRgdIdForXdbIds(int rgdId) {
+        for( XdbId xdbId: xdbIds ) {
+            xdbId.setRgdId(rgdId);
+            XdbIdCollection.getInstance().addIncoming(xdbId);
+        }
+    }
+
     public GenomicElement getPromoter() {
         return promoter;
     }
@@ -78,10 +103,6 @@ public class EPDRecord extends PipelineRecord {
 
     public AssociationCollection getNeighboringPromoterAssocs() {
         return npassocs;
-    }
-
-    public XdbIdCollection getXdbIds() {
-        return xdbIds;
     }
 
     public void addSeq(Sequence seq) {

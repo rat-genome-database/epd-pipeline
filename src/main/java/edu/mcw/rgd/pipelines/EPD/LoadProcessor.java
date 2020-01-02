@@ -68,7 +68,7 @@ public class LoadProcessor extends RecordProcessor {
         rec.getAttrs().incrementCounters(getSession(), "EXPRESSION_DATA_");
 
         // sync xdb ids
-        rec.getXdbIds().sync(promoter.getRgdId(), getDao(), getSession());
+        rec.setRgdIdForXdbIds(promoter.getRgdId());
 
         rec.getAlternativePromoterAssocs().sync(promoter.getRgdId(), notes);
         rec.getAlternativePromoterAssocs().incrementCounters(getSession(), "ALT_PROMOTER_ASSOC_");

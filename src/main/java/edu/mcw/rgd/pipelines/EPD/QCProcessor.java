@@ -60,9 +60,6 @@ public class QCProcessor extends RecordProcessor {
 
         qcGeneIds(rec);
 
-        // run QC for xdbids
-        rec.getXdbIds().qc(promoter.getRgdId(), getSrcPipeline(), getDao());
-
         // run QC for genomic position
         for( MapsDataCollection md: rec.mds.values() ) {
             md.qc(promoter.getRgdId());
@@ -130,16 +127,8 @@ public class QCProcessor extends RecordProcessor {
     void qcGeneIds(EPDRecord rec) throws Exception {
 
         // try to match REFSEQ nucleotide ids first
-        List<String> ids = new ArrayList<String>();
-        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_GENEBANKNU));
-        // then by ENSEMBL ids
-        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_ENSEMBL_GENES));
-        // then by MGD ids
-        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_MGD));
-        // then by SWISS-PROT ids
-        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_UNIPROT));
-        // then by OMIM ids
-        ids.addAll(rec.getXdbIds().getAccIds(XdbId.XDB_KEY_OMIM));
+        int[] xdbKeys = { XdbId.XDB_KEY_GENEBANKNU, XdbId.XDB_KEY_ENSEMBL_GENES, XdbId.XDB_KEY_MGD, XdbId.XDB_KEY_UNIPROT, XdbId.XDB_KEY_OMIM };
+        List<String> ids = rec.getAccIds(xdbKeys);
         // finally match by gene ids
         ids.addAll(rec.getGeneIds());
 

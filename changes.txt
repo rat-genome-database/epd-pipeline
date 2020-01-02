@@ -1,3 +1,6 @@
+Jan 2, 2020
+  simplified handling of xdb ids
+
 Dec 31, 2019
   partially fixed broken logging; improved handling of promoter_to_gene associations
   improved handling of 'promoter_region' sequences

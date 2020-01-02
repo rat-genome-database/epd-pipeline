@@ -356,12 +356,11 @@ public class PreProcessor extends RecordPreprocessor {
                 String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
                 XdbId xdbId = new XdbId();
                 xdbId.setAccId(accId);
-                xdbId.setLinkText(accId);
                 xdbId.setCreationDate(new Date());
                 xdbId.setModificationDate(xdbId.getCreationDate());
                 xdbId.setSrcPipeline(getSrcPipeline());
                 xdbId.setXdbKey(XdbId.XDB_KEY_UNIPROT);
-                rec.getXdbIds().addIncomingObject(xdbId);
+                rec.addXdbId(xdbId);
             }
             return true;
         }
@@ -383,12 +382,11 @@ public class PreProcessor extends RecordPreprocessor {
                 String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
                 XdbId xdbId = new XdbId();
                 xdbId.setAccId(accId);
-                xdbId.setLinkText(accId);
                 xdbId.setCreationDate(new Date());
                 xdbId.setModificationDate(xdbId.getCreationDate());
                 xdbId.setSrcPipeline(getSrcPipeline());
                 xdbId.setXdbKey(XdbId.XDB_KEY_MGD);
-                rec.getXdbIds().addIncomingObject(xdbId);
+                rec.addXdbId(xdbId);
             }
             return true;
         }
@@ -402,12 +400,11 @@ public class PreProcessor extends RecordPreprocessor {
                 String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
                 XdbId xdbId = new XdbId();
                 xdbId.setAccId(accId);
-                xdbId.setLinkText(accId);
                 xdbId.setCreationDate(new Date());
                 xdbId.setModificationDate(xdbId.getCreationDate());
                 xdbId.setSrcPipeline(getSrcPipeline());
                 xdbId.setXdbKey(XdbId.XDB_KEY_GENEBANKNU);
-                rec.getXdbIds().addIncomingObject(xdbId);
+                rec.addXdbId(xdbId);
             }
             return true;
         }
@@ -421,12 +418,11 @@ public class PreProcessor extends RecordPreprocessor {
                 String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
                 XdbId xdbId = new XdbId();
                 xdbId.setAccId(accId);
-                xdbId.setLinkText(accId);
                 xdbId.setCreationDate(new Date());
                 xdbId.setModificationDate(xdbId.getCreationDate());
                 xdbId.setSrcPipeline(getSrcPipeline());
                 xdbId.setXdbKey(XdbId.XDB_KEY_OMIM);
-                rec.getXdbIds().addIncomingObject(xdbId);
+                rec.addXdbId(xdbId);
             }
             return true;
         }
@@ -444,7 +440,7 @@ public class PreProcessor extends RecordPreprocessor {
                 xdbId.setModificationDate(xdbId.getCreationDate());
                 xdbId.setSrcPipeline(getSrcPipeline());
                 xdbId.setXdbKey(XdbId.XDB_KEY_ENSEMBL_GENES);
-                rec.getXdbIds().addIncomingObject(xdbId);
+                rec.addXdbId(xdbId);
             }
             return true;
         }
@@ -486,12 +482,11 @@ public class PreProcessor extends RecordPreprocessor {
             String accId = line.substring(pos1+1, pos2).trim().toUpperCase();
             XdbId xdbId = new XdbId();
             xdbId.setAccId(accId);
-            xdbId.setLinkText(accId);
             xdbId.setCreationDate(new Date());
             xdbId.setModificationDate(xdbId.getCreationDate());
             xdbId.setSrcPipeline(getSrcPipeline());
             xdbId.setXdbKey(XdbId.XDB_KEY_PUBMED);
-            rec.getXdbIds().addIncomingObject(xdbId);
+            rec.addXdbId(xdbId);
         }
         return true;
     }
