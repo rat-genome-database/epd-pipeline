@@ -22,6 +22,7 @@ public class Dao {
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
     Logger logAssocGenes = Logger.getLogger("assoc_genes");
+    Logger logExpressionData = Logger.getLogger("expression_data");
     Logger logMapPos = Logger.getLogger("genomic_pos");
     Logger logSeq = Logger.getLogger("sequences");
     Logger logXdbIds = Logger.getLogger("xdb_ids");
@@ -46,15 +47,13 @@ public class Dao {
         return null;
     }
 
-    /**
-     * get expression data for given genomic element
-     * @param rgdId rgd id of genomic element
-     * @return List of ExpressionData objects
-     * @throws Exception when unexpected error in spring framework occurs
-     */
-    public List<ExpressionData> getExpressionData(int rgdId) throws Exception {
+    public List<ExpressionData> getExpressionData(String[] sources) throws Exception {
 
-        return genomicElementDAO.getExpressionData(rgdId);
+        List<ExpressionData> results = new ArrayList<>();
+        for( String source: sources ) {
+            results.addAll(genomicElementDAO.getExpressionDataForSource(source));
+        }
+        return results;
     }
 
     /**
@@ -63,9 +62,20 @@ public class Dao {
      * @return count of rows affected
      * @throws Exception when unexpected error in spring framework occurs
      */
-    public int insertExpressionData(List<ExpressionData> list) throws Exception {
+    public int insertExpressionData(Collection<ExpressionData> list) throws Exception {
 
+        for( ExpressionData ed: list ) {
+            logExpressionData.debug("INSERT " +ed.dump("|"));
+        }
         return genomicElementDAO.insertExpressionData(list);
+    }
+
+    public int deleteExpressionData(Collection<ExpressionData> list) throws Exception {
+
+        for( ExpressionData ed: list ) {
+            logExpressionData.debug("DELETE " +ed.dump("|"));
+        }
+        return genomicElementDAO.deleteExpressionData(list);
     }
 
     /**

@@ -55,9 +55,6 @@ public class QCProcessor extends RecordProcessor {
             }
         }
 
-        // run QC for expression data
-        rec.getAttrs().qc(promoter.getRgdId());
-
         qcGeneIds(rec);
 
         qcAlternativePromoters(rec);

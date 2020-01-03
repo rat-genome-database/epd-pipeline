@@ -2,7 +2,6 @@ package edu.mcw.rgd.pipelines.EPD;
 
 
 import edu.mcw.rgd.datamodel.MapData;
-import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.Utils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;

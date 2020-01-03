@@ -31,7 +31,7 @@ public class EPDRecord extends PipelineRecord {
     private Gene gene; // matching gene
 
     private GenomicElement promoter = new GenomicElement();
-    private ExpressionDataCollection attrs = new ExpressionDataCollection();
+    private List<ExpressionData> expressionDataList = new ArrayList<>();
     private AlternativePromoterCollection apassocs = new AlternativePromoterCollection();
     private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
     private List<XdbId> xdbIds = new ArrayList<>();
@@ -98,16 +98,24 @@ public class EPDRecord extends PipelineRecord {
         }
     }
 
+    public void addExpressionData(ExpressionData ed) {
+        expressionDataList.add(ed);
+    }
+
+    public void setRgdIdForExpressionData(int rgdId, String notes) {
+        for( ExpressionData ed: expressionDataList ) {
+            ed.setRgdId(rgdId);
+            ed.setNotes(notes);
+            ExpressionDataCollection.getInstance().addIncoming(ed);
+        }
+    }
+
     public List<MapData> getMapData() {
         return mds;
     }
 
     public GenomicElement getPromoter() {
         return promoter;
-    }
-
-    public ExpressionDataCollection getAttrs() {
-        return attrs;
     }
 
     public AssociationCollection getAlternativePromoterAssocs() {
@@ -128,7 +136,6 @@ public class EPDRecord extends PipelineRecord {
 
     public void setDao(Dao dao) {
         this.dao = dao;
-        attrs.setDao(dao);
         apassocs.setDao(dao);
         npassocs.setDao(dao);
     }

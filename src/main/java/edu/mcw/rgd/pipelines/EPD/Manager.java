@@ -78,6 +78,8 @@ public class Manager {
 
         // post processing
         // ---
+        ExpressionDataCollection.getInstance().qc(dao, sources);
+
         MapsDataCollection.getInstance().qc(dao, sources);
 
         // 'promoter_to_gene' associations

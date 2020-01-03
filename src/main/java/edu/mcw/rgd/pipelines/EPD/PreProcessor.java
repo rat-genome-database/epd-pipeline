@@ -3,12 +3,12 @@ package edu.mcw.rgd.pipelines.EPD;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.pipelines.RecordPreprocessor;
 import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Date;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -43,7 +43,7 @@ public class PreProcessor extends RecordPreprocessor {
         String localFileName = downloader.downloadNew();
 
         // open the input file
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(localFileName))))) {
+        try (BufferedReader reader = Utils.openReader(localFileName)) {
             // there could be multiple lines for one promoter
             String line;
             int rowCount = 0, recNo = 0;
@@ -68,7 +68,8 @@ public class PreProcessor extends RecordPreprocessor {
                         ed.setExperimentMethods(rec.getExperimentMethods());
                         ed.setTissue(rec.getExpressionData());
                         ed.setRegulation(rec.getRegulationData());
-                        rec.getAttrs().getIncomingList().add(ed);
+                        ed.setSource(getSrcPipeline());
+                        rec.addExpressionData(ed);
                     }
 
                     // new promoter detected: store previous data to database

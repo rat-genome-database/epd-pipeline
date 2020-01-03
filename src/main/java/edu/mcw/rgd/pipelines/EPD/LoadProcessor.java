@@ -58,12 +58,7 @@ public class LoadProcessor extends RecordProcessor {
         String notes = "created by EPD pipeline for " + promoter.getSymbol() + ", " + new java.util.Date();
 
         rec.setRgdIdForMapData(promoter.getRgdId(), notes);
-
-        // sync expression data
-        rec.getAttrs().sync(promoter.getRgdId(), notes);
-        rec.getAttrs().incrementCounters(getSession(), "EXPRESSION_DATA_");
-
-        // sync xdb ids
+        rec.setRgdIdForExpressionData(promoter.getRgdId(), notes);
         rec.setRgdIdForXdbIds(promoter.getRgdId());
 
         rec.getAlternativePromoterAssocs().sync(promoter.getRgdId(), notes);

@@ -1,82 +1,78 @@
 package edu.mcw.rgd.pipelines.EPD;
 
-import edu.mcw.rgd.datamodel.ExpressionData;
-import edu.mcw.rgd.pipelines.RgdObjectSyncer;
-import edu.mcw.rgd.process.Utils;
-import org.apache.commons.logging.LogFactory;
 
-import java.util.List;
+import edu.mcw.rgd.datamodel.ExpressionData;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.log4j.Logger;
+
+import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: 4/9/12
- * Time: 4:16 PM
- * to efficiently handle synchronization between incoming data and rgd of genomic element attributes;
- * attributes loaded previously are never removed
+ * @author mtutaj
+ * @since 4/9/12
  */
-public class ExpressionDataCollection extends RgdObjectSyncer {
+public class ExpressionDataCollection {
 
-    public ExpressionDataCollection() {
-        setLog(LogFactory.getLog("expression_data"));
+    // THREAD SAFE SINGLETON -- start
+    // private instance, so that it can be accessed by only by getInstance() method
+    private static ExpressionDataCollection instance;
+
+    private ExpressionDataCollection() {
+        // private constructor
     }
 
+    //synchronized method to control simultaneous access
+    synchronized public static ExpressionDataCollection getInstance() {
+        if (instance == null) {
+            // if instance is null, initialize
+            instance = new ExpressionDataCollection();
+        }
+        return instance;
+    }
+    // THREAD SAFE SINGLETON -- end
+    //
 
-    @Override
-    protected boolean equalsByUniqueKey(Object obj1, Object obj2) {
-        return equalsByContents(obj1, obj2);
+
+
+    Logger log = Logger.getLogger("status");
+
+    private final Set<ExpressionData> incoming = new HashSet<>();
+
+    public void addIncoming(ExpressionData md) {
+
+        // there is only one instance of this class
+        synchronized (incoming) {
+            incoming.add(md);
+        }
     }
 
-    @Override
-    protected boolean equalsByContents(Object obj1, Object obj2) {
-        ExpressionData el1 = (ExpressionData) obj1;
-        ExpressionData el2 = (ExpressionData) obj2;
+    synchronized public void qc(Dao dao, String[] sources) throws Exception {
 
-        return Utils.stringsAreEqualIgnoreCase(el1.getTissue(), el2.getTissue()) &&
-            Utils.stringsAreEqualIgnoreCase(el1.getExperimentMethods(), el2.getExperimentMethods()) &&
-            Utils.stringsAreEqualIgnoreCase(el1.getRegulation(), el2.getRegulation());
+        List<ExpressionData> expressionDataInRgd = dao.getExpressionData(sources);
+
+        // determine expression data for insertion
+        Collection<ExpressionData> forInsert = CollectionUtils.subtract(incoming, expressionDataInRgd);
+
+        // determine expression data for deletion
+        Collection<ExpressionData> forDelete = CollectionUtils.subtract(expressionDataInRgd, incoming);
+
+        Collection<ExpressionData> matching = CollectionUtils.intersection(expressionDataInRgd, incoming);
+
+
+        if( !forInsert.isEmpty() ) {
+            dao.insertExpressionData(forInsert);
+            log.info("EXPRESSION_DATA_INSERTED: "+forInsert.size());
+        }
+
+        if( !forDelete.isEmpty() ) {
+            dao.deleteExpressionData(forDelete);
+            log.info("EXPRESSION_DATA_DELETED: "+forDelete.size());
+        }
+
+        int matchingData = matching.size();
+        if( matchingData!=0 ) {
+            log.info("EXPRESSION_DATA_MATCHING: "+matchingData);
+        }
     }
 
-    @Override
-    protected List getDataInRgd(int rgdId) throws Exception {
-        Dao dao = (Dao) getDao();
-        return dao.getExpressionData(rgdId);
-    }
-
-    @Override
-    protected int insertDataIntoRgd(List list) throws Exception {
-        Dao dao = (Dao) getDao();
-        return dao.insertExpressionData(list);
-    }
-
-    @Override
-    protected int updateDataInRgd(List list) throws Exception {
-        return 0;
-    }
-
-    @Override
-    protected int deleteDataFromRgd(List list) throws Exception {
-        return 0;
-    }
-
-    @Override
-    protected void copyObjectUniqueKey(Object toObj, Object fromObj) {
-        //
-    }
-
-    @Override
-    protected void prepare(Object obj, int rgdId, Object userData, int context) {
-        ExpressionData el1 = (ExpressionData) obj;
-        el1.setRgdId(rgdId);
-    }
-
-    @Override
-    public boolean isUpdatable() {
-        return false;
-    }
-
-    @Override
-    public boolean isDeletable() {
-        return false;
-    }
 }
