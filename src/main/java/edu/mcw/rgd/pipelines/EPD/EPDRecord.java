@@ -32,15 +32,13 @@ public class EPDRecord extends PipelineRecord {
 
     private GenomicElement promoter = new GenomicElement();
     private List<ExpressionData> expressionDataList = new ArrayList<>();
-    private AlternativePromoterCollection apassocs = new AlternativePromoterCollection();
-    private NeighborPromoterCollection npassocs = new NeighborPromoterCollection();
     private List<XdbId> xdbIds = new ArrayList<>();
     private List<MapData> mds = new ArrayList<>();
     List<Sequence> seqs = new ArrayList<>();
 
     private String altPromoterInfo; // informational text about
-    private List<String> altPromoters; // list of acc ids of alternative promoters
-    private List<String> neighPromoters; // list of acc ids of neighboring promoters
+    private List<String> altPromoters = new ArrayList<>(); // list of acc ids of alternative promoters
+    private List<String> neighPromoters = new ArrayList<>(); // list of acc ids of neighboring promoters
 
     private String experimentMethods;
     private String expressionData; // tissue
@@ -118,14 +116,6 @@ public class EPDRecord extends PipelineRecord {
         return promoter;
     }
 
-    public AssociationCollection getAlternativePromoterAssocs() {
-        return apassocs;
-    }
-
-    public AssociationCollection getNeighboringPromoterAssocs() {
-        return npassocs;
-    }
-
     public void addSeq(Sequence seq) {
         seqs.add(seq);
     }
@@ -136,8 +126,6 @@ public class EPDRecord extends PipelineRecord {
 
     public void setDao(Dao dao) {
         this.dao = dao;
-        apassocs.setDao(dao);
-        npassocs.setDao(dao);
     }
 
     public Gene getGene() {
@@ -161,8 +149,6 @@ public class EPDRecord extends PipelineRecord {
     }
 
     public void addAltPromoter(String accId) {
-        if( altPromoters==null )
-            altPromoters = new ArrayList<String>();
         altPromoters.add(accId);
     }
 
@@ -170,8 +156,6 @@ public class EPDRecord extends PipelineRecord {
         return neighPromoters;
     }
     public void addNeighboringPromoter(String accId) {
-        if( neighPromoters==null )
-            neighPromoters = new ArrayList<String>();
         neighPromoters.add(accId);
     }
 

@@ -1,6 +1,7 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.dao.impl.*;
+import edu.mcw.rgd.dao.spring.GenomicElementQuery;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
 import org.apache.log4j.Logger;
@@ -34,9 +35,13 @@ public class Dao {
      * @return GenomicElement object or null if promoter id is invalid
      * @throws Exception when unexpected error in spring framework occurs
      */
-    public GenomicElement getPromoterById(String promoterId) throws Exception {
+    public GenomicElement getPromoterById(String promoterId, int speciesTypeKey) throws Exception {
 
+        // first try to match by promoter symbol, then by promoter name
         List<GenomicElement> elements = genomicElementDAO.getElementsBySymbol(promoterId, RgdId.OBJECT_KEY_PROMOTERS);
+        if( elements.isEmpty() && speciesTypeKey!=0 ) {
+            elements = getElementsByName(promoterId, RgdId.OBJECT_KEY_PROMOTERS, speciesTypeKey);
+        }
         if( elements.isEmpty() ) {
             return null;
         }
@@ -45,6 +50,16 @@ public class Dao {
         }
         throwException("multiple promoters found for symbol "+promoterId);
         return null;
+    }
+
+    public List<GenomicElement> getElementsByName(String name, int objectKey, int speciesTypeKey) throws Exception {
+
+        String sql = "SELECT ge.*,r.species_type_key,r.object_status,r.object_key "+
+                "FROM genomic_elements ge, rgd_ids r "+
+                "WHERE LOWER(ge.name)=LOWER(?) AND ge.rgd_id=r.rgd_id AND r.object_key=? AND r.species_type_key=?";
+
+        GenomicElementQuery q = new GenomicElementQuery(genomicElementDAO.getDataSource(), sql);
+        return genomicElementDAO.execute(q, name, objectKey, speciesTypeKey);
     }
 
     public List<ExpressionData> getExpressionData(String[] sources) throws Exception {
@@ -270,13 +285,24 @@ public class Dao {
         return associationDAO.getAssociationsByTypeAndSource(assocType, source);
     }
 
-    /**
-     * insert a new association into RGD_ASSOCIATIONS table; assoc_key will be automatically taken from database sequence
-     * <p>Note: assoc_key and assoc_subkey are always made lower-case and src_pipeline is always made uppercase</p>
-     * @param assoc Association object to be inserted
-     * @return value of generated assoc_key
-     * @throws Exception when unexpected error in spring framework occurs
-     */
+    public void insertAssociations(Collection<Association> assocs, String logName) throws Exception {
+        Logger logger = Logger.getLogger(logName);
+
+        for (Association assoc: assocs) {
+            associationDAO.insertAssociation(assoc);
+            logger.debug(assoc.dump("|"));
+        }
+    }
+
+    public void deleteAssociations(Collection<Association> assocs, String logName) throws Exception {
+        Logger logger = Logger.getLogger(logName);
+
+        for (Association assoc: assocs) {
+            logger.debug(assoc.dump("|"));
+            associationDAO.deleteAssociations(assoc.getMasterRgdId(), assoc.getDetailRgdId(), assoc.getAssocType());
+        }
+    }
+
     public int insertAssociation( Association assoc ) throws Exception {
         int assocKey = associationDAO.insertAssociation(assoc);
         logAssocGenes.info("INSERT "+assoc.dump("|"));

@@ -34,7 +34,7 @@ public class QCProcessor extends RecordProcessor {
         promoter.setSoAccId(getSoAccId());
 
         // match promoter by promoter id
-        GenomicElement promoterInRgd = getDao().getPromoterById(promoter.getSymbol());
+        GenomicElement promoterInRgd = getDao().getPromoterById(promoter.getSymbol(), promoter.getSpeciesTypeKey());
         if( promoterInRgd==null ) {
             // new promoter
             rec.setFlag("LOAD_INSERT");
@@ -56,63 +56,8 @@ public class QCProcessor extends RecordProcessor {
         }
 
         qcGeneIds(rec);
-
-        qcAlternativePromoters(rec);
-        qcNeighboringPromoters(rec);
     }
 
-    void qcAlternativePromoters(EPDRecord rec) throws Exception {
-
-        // is there anything to do?
-        if( rec.getAltPromoters()==null )
-            return;
-
-        // create a list of incoming alternative promoters
-        for( String accId: rec.getAltPromoters() ) {
-            GenomicElement ge = dao.getPromoterById(accId);
-            if( ge==null ) {
-                getSession().incrementCounter("IGNORED_ALTERNATIVE_PROMOTERS", 1);
-            }
-            else {
-                Association assoc = new Association();
-                assoc.setAssocType("alternative_promoter");
-                assoc.setAssocSubType(rec.getAltPromoterInfo());
-                assoc.setSrcPipeline(getSrcPipeline());
-                assoc.setDetailRgdId(ge.getRgdId());
-                assoc.setCreationDate(new Date());
-                rec.getAlternativePromoterAssocs().getIncomingList().add(assoc);
-            }
-        }
-
-        // qc list of alternative promoters
-        rec.getAlternativePromoterAssocs().qc(rec.getPromoter().getRgdId());
-    }
-
-    void qcNeighboringPromoters(EPDRecord rec) throws Exception {
-
-        // is there anything to do?
-        if( rec.getNeighboringPromoters()==null )
-            return;
-
-        // create a list of incoming neighboring promoters
-        for( String accId: rec.getNeighboringPromoters() ) {
-            GenomicElement ge = dao.getPromoterById(accId);
-            if( ge==null ) {
-                getSession().incrementCounter("IGNORED_NEIGHBORING_PROMOTERS", 1);
-            }
-            else {
-                Association assoc = new Association();
-                assoc.setAssocType("neighboring_promoter");
-                assoc.setSrcPipeline(getSrcPipeline());
-                assoc.setDetailRgdId(ge.getRgdId());
-                assoc.setCreationDate(new Date());
-                rec.getNeighboringPromoterAssocs().getIncomingList().add(assoc);
-            }
-        }
-
-        // qc list of neighboring promoters
-        rec.getNeighboringPromoterAssocs().qc(rec.getPromoter().getRgdId());
-    }
 
     // first match genes by position; if there is only one gene hit, use that gene
     // if there are multiple ones, analyse

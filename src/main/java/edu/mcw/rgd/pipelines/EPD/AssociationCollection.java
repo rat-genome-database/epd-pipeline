@@ -1,71 +1,63 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.Association;
-import edu.mcw.rgd.pipelines.RgdObjectSyncer;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.log4j.Logger;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: 4/16/12
- * Time: 12:59 PM
+ * @author mtutaj
+ * @since 4/16/12
  * collection of associations for promoter
  */
-abstract public class AssociationCollection extends RgdObjectSyncer {
+abstract public class AssociationCollection {
 
-    @Override
-    protected boolean equalsByUniqueKey(Object obj1, Object obj2) {
-        Association a1 = (Association) obj1;
-        Association a2 = (Association) obj2;
-        return a1.getDetailRgdId()==a2.getDetailRgdId() &&
-               a1.getAssocType().equals(a2.getAssocType());
+    abstract public String getAssocType(); // f.e. "promoter_to_gene"
+    abstract public String getLogPrefix(); // f.e. "GENE_ASSOC"
+    abstract public String getLogName(); // f.e. "assoc_genes"
+
+    Logger log = Logger.getLogger("status");
+
+    private final Map<Association, Object> incoming = new ConcurrentHashMap<>();
+
+    public void addIncoming(Association assoc) throws Exception {
+        incoming.put(assoc, assoc);
     }
 
-    @Override
-    protected boolean equalsByContents(Object obj1, Object obj2) {
-        return false; //n/a
-    }
+    synchronized public void qc(Dao dao, String[] sources) throws Exception {
 
-    @Override
-    protected int insertDataIntoRgd(List list) throws Exception {
-        Dao dao = (Dao) getDao();
-        for( Association assoc: (List<Association>) list ) {
-            dao.insertAssociation(assoc);
+        List<Association> inRgdAssocs = new ArrayList<>();
+        for( String source: sources ) {
+            inRgdAssocs.addAll(dao.getAssociations(getAssocType(), source));
         }
-        return list.size();
-    }
 
-    @Override
-    protected int updateDataInRgd(List list) throws Exception {
-        return 0;
-    }
+        Set<Association> incomingAssocs = incoming.keySet();
 
-    @Override
-    protected int deleteDataFromRgd(List list) throws Exception {
-        return 0;
-    }
+        // determine new associations for insertion
+        Collection<Association> forInsert = CollectionUtils.subtract(incomingAssocs, inRgdAssocs);
 
-    @Override
-    protected void copyObjectUniqueKey(Object toObj, Object fromObj) {
-        Association x1 = (Association) toObj;
-        Association x2 = (Association) fromObj;
-        x1.setAssocKey(x2.getAssocKey());
-    }
+        // determine new associations for deletion
+        Collection<Association> forDelete = CollectionUtils.subtract(inRgdAssocs, incomingAssocs);
 
-    @Override
-    protected void prepare(Object obj, int rgdId, Object userData, int context) {
-        Association x = (Association) obj;
-        x.setMasterRgdId(rgdId);
-    }
+        Collection<Association> matching = CollectionUtils.intersection(inRgdAssocs, incomingAssocs);
 
-    @Override
-    public boolean isUpdatable() {
-        return false;
-    }
 
-    @Override
-    public boolean isDeletable() {
-        return false;
+        // update the database
+        if( !forInsert.isEmpty() ) {
+            dao.insertAssociations(forInsert, getLogName());
+            log.info(getLogPrefix()+"_INSERTED: "+forInsert.size());
+        }
+
+        if( !forDelete.isEmpty() ) {
+            dao.deleteAssociations(forDelete, getLogName());
+            log.info(getLogPrefix()+"_DELETED: "+forDelete.size());
+        }
+
+        int matchingAssocs = matching.size();
+        if( matchingAssocs!=0 ) {
+            log.info(getLogPrefix()+"_MATCHED: "+matchingAssocs);
+        }
     }
 }

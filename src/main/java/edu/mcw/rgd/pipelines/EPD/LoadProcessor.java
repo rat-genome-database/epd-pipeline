@@ -61,11 +61,8 @@ public class LoadProcessor extends RecordProcessor {
         rec.setRgdIdForExpressionData(promoter.getRgdId(), notes);
         rec.setRgdIdForXdbIds(promoter.getRgdId());
 
-        rec.getAlternativePromoterAssocs().sync(promoter.getRgdId(), notes);
-        rec.getAlternativePromoterAssocs().incrementCounters(getSession(), "ALT_PROMOTER_ASSOC_");
-
-        rec.getNeighboringPromoterAssocs().sync(promoter.getRgdId(), notes);
-        rec.getNeighboringPromoterAssocs().incrementCounters(getSession(), "NEIGHBOR_PROMOTER_ASSOC_");
+        qcAlternativePromoters(rec, promoter.getRgdId());
+        qcNeighboringPromoters(rec, promoter.getRgdId());
 
         // sync sequences
         qcSequences(rec, promoter.getRgdId());
@@ -79,6 +76,46 @@ public class LoadProcessor extends RecordProcessor {
             assoc.setCreationDate(new Date());
             assoc.setSrcPipeline(getSrcPipeline());
             GeneAssociationCollection.getInstance().addIncoming(assoc);
+        }
+    }
+
+    void qcAlternativePromoters(EPDRecord rec, int promoterRgdId) throws Exception {
+
+        // create a list of incoming alternative promoters
+        for( String accId: rec.getAltPromoters() ) {
+            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey());
+            if( ge==null ) {
+                getSession().incrementCounter("IGNORED_ALTERNATIVE_PROMOTERS", 1);
+            }
+            else {
+                Association assoc = new Association();
+                assoc.setAssocType("alternative_promoter");
+                assoc.setSrcPipeline(getSrcPipeline());
+                assoc.setMasterRgdId(promoterRgdId);
+                assoc.setDetailRgdId(ge.getRgdId());
+                assoc.setCreationDate(new Date());
+                AlternativePromoterCollection.getInstance().addIncoming(assoc);
+            }
+        }
+    }
+
+    void qcNeighboringPromoters(EPDRecord rec, int promoterRgdId) throws Exception {
+
+        // create a list of incoming neighboring promoters
+        for( String accId: rec.getNeighboringPromoters() ) {
+            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey());
+            if( ge==null ) {
+                getSession().incrementCounter("IGNORED_NEIGHBORING_PROMOTERS", 1);
+            }
+            else {
+                Association assoc = new Association();
+                assoc.setAssocType("neighboring_promoter");
+                assoc.setSrcPipeline(getSrcPipeline());
+                assoc.setMasterRgdId(promoterRgdId);
+                assoc.setDetailRgdId(ge.getRgdId());
+                assoc.setCreationDate(new Date());
+                NeighborPromoterCollection.getInstance().addIncoming(assoc);
+            }
         }
     }
 

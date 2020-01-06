@@ -78,6 +78,9 @@ public class Manager {
 
         // post processing
         // ---
+        AlternativePromoterCollection.getInstance().qc(dao, sources);
+        NeighborPromoterCollection.getInstance().qc(dao, sources);
+
         ExpressionDataCollection.getInstance().qc(dao, sources);
 
         MapsDataCollection.getInstance().qc(dao, sources);
@@ -116,7 +119,7 @@ public class Manager {
 
         pman.addPipelineWorkgroup(preProcessor, "PP", 1, 0);
         pman.addPipelineWorkgroup(qcProcessor, "QC", qcProcessor.getQcThreadCount(), 0);
-        pman.addPipelineWorkgroup(loadProcessor, "LD", 1, 0);
+        pman.addPipelineWorkgroup(loadProcessor, "LD", qcProcessor.getQcThreadCount(), 0);
 
         pman.run();
 
