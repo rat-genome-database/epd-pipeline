@@ -22,7 +22,6 @@ public class Dao {
     private GenomicElementDAO genomicElementDAO = new GenomicElementDAO();
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
-    Logger logAssocGenes = Logger.getLogger("assoc_genes");
     Logger logExpressionData = Logger.getLogger("expression_data");
     Logger logMapPos = Logger.getLogger("genomic_pos");
     Logger logSeq = Logger.getLogger("sequences");
@@ -110,7 +109,7 @@ public class Dao {
      * @return count of rows affected
      * @throws Exception when unexpected error in spring framework occurs
      */
-    public int insertPromoter(GenomicElement promoter, int speciesTypeKey) throws Exception {
+    synchronized public int insertPromoter(GenomicElement promoter, int speciesTypeKey) throws Exception {
 
         // if promoter rgd id is not given, create a new rgd id
         if( promoter.getRgdId()<=0 ) {
@@ -268,18 +267,6 @@ public class Dao {
         return mapDAO.getMapData(rgdId, mapKey);
     }
 
-    /**
-     * return list of all association for given master rgd id and association type
-     * @param masterRgdId master rgd id
-     * @param assocType association type
-     * @return list of Association objects; never null, but returned list could be empty
-     * @throws Exception when unexpected error in spring framework occurs
-     */
-    public List<Association> getAssociations(int masterRgdId, String assocType) throws Exception {
-
-        return associationDAO.getAssociationsForMasterRgdId(masterRgdId, assocType);
-    }
-
     public List<Association> getAssociations(String assocType, String source) throws Exception {
 
         return associationDAO.getAssociationsByTypeAndSource(assocType, source);
@@ -301,17 +288,6 @@ public class Dao {
             logger.debug(assoc.dump("|"));
             associationDAO.deleteAssociations(assoc.getMasterRgdId(), assoc.getDetailRgdId(), assoc.getAssocType());
         }
-    }
-
-    public int insertAssociation( Association assoc ) throws Exception {
-        int assocKey = associationDAO.insertAssociation(assoc);
-        logAssocGenes.info("INSERT "+assoc.dump("|"));
-        return assocKey;
-    }
-
-    public int deleteAssociation( Association assoc ) throws Exception {
-        logAssocGenes.info("DELETE "+assoc.dump("|"));
-        return associationDAO.deleteAssociations(assoc.getMasterRgdId(), assoc.getDetailRgdId(), assoc.getAssocType());
     }
 
     public void insertSequence(Sequence seq) throws Exception {

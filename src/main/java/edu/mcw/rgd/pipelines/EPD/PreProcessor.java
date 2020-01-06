@@ -2,6 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.pipelines.RecordPreprocessor;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
@@ -20,6 +21,7 @@ public class PreProcessor extends RecordPreprocessor {
 
     private Dao dao;
     private String srcPipeline;
+    private CounterPool counters;
 
     protected final Logger logger = Logger.getLogger("status");
     private Map<String, String> experimentEvidences;
@@ -74,7 +76,7 @@ public class PreProcessor extends RecordPreprocessor {
 
                     // new promoter detected: store previous data to database
                     getSession().putRecordToFirstQueue(rec);
-                    getSession().incrementCounter("RECORDS_PROCESSED", 1);
+                    getCounters().increment("RECORDS_PROCESSED");
 
                     // and initialize the new promoter
                     rec = new EPDRecord();
@@ -561,7 +563,7 @@ public class PreProcessor extends RecordPreprocessor {
                 rec.addMapData(md);
             }
         } else {
-            getSession().incrementCounter("MAPS_DATA_CANNOT_PARSE_NON_CHROMOSOME_LOCI", 1);
+            getCounters().increment("MAPS_DATA_CANNOT_PARSE_NON_CHROMOSOME_LOCI");
             //startPos = line.indexOf("EM:");
             //System.out.println("--FP input cannot parse transcripts--" + line);
         }
@@ -710,5 +712,13 @@ public class PreProcessor extends RecordPreprocessor {
 
     public void setSrcPipeline(String srcPipeline) {
         this.srcPipeline = srcPipeline;
+    }
+
+    public CounterPool getCounters() {
+        return counters;
+    }
+
+    public void setCounters(CounterPool counters) {
+        this.counters = counters;
     }
 }

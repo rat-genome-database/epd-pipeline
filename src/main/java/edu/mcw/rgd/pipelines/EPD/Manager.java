@@ -1,6 +1,7 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.pipelines.PipelineManager;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -63,17 +64,11 @@ public class Manager {
         //    classified as stale and dropped! (due to possible clock differences between db and app servers)
 
 
-        String[] sources = {"EPD", "EPDNEW"};
+        String[] sources = {"EPD", "EPDNEW", "EPDNEWNC"};
 
-        // process old EPD file
         run("EPD", getEpdFileNames());
-
-        // process EPDNEW files
         run("EPDNEW", getEpdNewFileNames());
-
-        if( false ) {
-            run("EPDNEWNC", getEpdNewNcFileNames());
-        }
+        run("EPDNEWNC", getEpdNewNcFileNames());
 
 
         // post processing
@@ -105,11 +100,16 @@ public class Manager {
 
     public void run(String srcPipeline, String fileName) throws Exception {
 
+        CounterPool counters = new CounterPool();
         PipelineManager pman = new PipelineManager();
 
         preProcessor.setDao(getDao());
         qcProcessor.setDao(getDao());
         loadProcessor.setDao(getDao());
+
+        preProcessor.setCounters(counters);
+        qcProcessor.setCounters(counters);
+        loadProcessor.setCounters(counters);
 
         preProcessor.setSrcPipeline(srcPipeline);
         qcProcessor.setSrcPipeline(srcPipeline);
@@ -123,9 +123,7 @@ public class Manager {
 
         pman.run();
 
-        // dump counter statistics
-        pman.dumpCounters();
-        System.out.println();
+        logger.info(counters.dumpAlphabetically());
     }
 
     public void setQcProcessor(QCProcessor qcProcessor) {

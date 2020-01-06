@@ -3,6 +3,7 @@ package edu.mcw.rgd.pipelines.EPD;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.pipelines.RecordProcessor;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 
 import java.util.*;
@@ -17,6 +18,7 @@ public class QCProcessor extends RecordProcessor {
     private Dao dao;
     private String soAccId;
     private String srcPipeline;
+    private CounterPool counters;
     private int maxPromoter2GeneDistance = 10000;
     private int qcThreadCount;
 
@@ -49,8 +51,8 @@ public class QCProcessor extends RecordProcessor {
                 !Utils.stringsAreEqual(promoter.getDescription(), promoterInRgd.getDescription()) ||
                 !Utils.stringsAreEqual(promoter.getSource(), promoterInRgd.getSource()) ||
                 !Utils.stringsAreEqual(promoter.getSoAccId(), promoterInRgd.getSoAccId()) ||
-                !Utils.stringsAreEqual(promoter.getNotes(), promoterInRgd.getNotes()) ||
-                true ) {
+                !Utils.stringsAreEqual(promoter.getNotes(), promoterInRgd.getNotes()) ) {
+
                 rec.setFlag("FULL_UPDATE");
             }
         }
@@ -86,10 +88,10 @@ public class QCProcessor extends RecordProcessor {
         if( !genesByNucleotideId.isEmpty() ) {
 
             rec.setGene(genesByNucleotideId.get(0));
-            getSession().incrementCounter("MATCH_TIER1_BY_REFSEQ_ID", 1);
+            getCounters().increment("MATCH_TIER1_BY_REFSEQ_ID");
 
             if( genesByNucleotideId.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_REFSEQ_ID", 1);
+                getCounters().increment("MULTIMATCH_BY_REFSEQ_ID");
             }
             return true;
         }
@@ -100,10 +102,10 @@ public class QCProcessor extends RecordProcessor {
         if( !genesByEnsemblId.isEmpty() ) {
 
             rec.setGene(genesByEnsemblId.get(0));
-            getSession().incrementCounter("MATCH_TIER2_BY_ENSEMBL_ID", 1);
+            getCounters().increment("MATCH_TIER2_BY_ENSEMBL_ID");
 
             if( genesByEnsemblId.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_ENSEMBL_ID", 1);
+                getCounters().increment("MULTIMATCH_BY_ENSEMBL_ID");
             }
             return true;
         }
@@ -114,10 +116,10 @@ public class QCProcessor extends RecordProcessor {
         if( !genesByProteinId.isEmpty() ) {
 
             rec.setGene(genesByProteinId.get(0));
-            getSession().incrementCounter("MATCH_TIER3_BY_UNIPROT_ID", 1);
+            getCounters().increment("MATCH_TIER3_BY_UNIPROT_ID");
 
             if( genesByProteinId.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_UNIPROT_ID", 1);
+                getCounters().increment("MULTIMATCH_BY_UNIPROT_ID");
             }
             return true;
         }
@@ -128,10 +130,10 @@ public class QCProcessor extends RecordProcessor {
         if( !genesByMgdId.isEmpty() ) {
 
             rec.setGene(genesByMgdId.get(0));
-            getSession().incrementCounter("MATCH_TIER4_BY_MGD_ID", 1);
+            getCounters().increment("MATCH_TIER4_BY_MGD_ID");
 
             if( genesByMgdId.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_MGD_ID", 1);
+                getCounters().increment("MULTIMATCH_BY_MGD_ID");
             }
             return true;
         }
@@ -142,10 +144,10 @@ public class QCProcessor extends RecordProcessor {
         if( !genesBySymbol.isEmpty() ) {
 
             rec.setGene(genesBySymbol.get(0));
-            getSession().incrementCounter("MATCH_TIER5_BY_GENE_SYMBOL", 1);
+            getCounters().increment("MATCH_TIER5_BY_GENE_SYMBOL");
 
             if( genesBySymbol.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_GENE_SYMBOL", 1);
+                getCounters().increment("MULTIMATCH_BY_GENE_SYMBOL");
             }
             return true;
         }
@@ -157,15 +159,15 @@ public class QCProcessor extends RecordProcessor {
         if( !genesByAlias.isEmpty() ) {
 
             rec.setGene(genesByAlias.get(0));
-            getSession().incrementCounter("MATCH_TIER6_BY_GENE_ALIAS", 1);
+            getCounters().increment("MATCH_TIER6_BY_GENE_ALIAS");
 
             if( genesByAlias.size()>1 ) {
-                getSession().incrementCounter("MULTIMATCH_BY_GENE_ALIAS", 1);
+                getCounters().increment("MULTIMATCH_BY_GENE_ALIAS");
             }
             return true;
         }
 
-        getSession().incrementCounter("MATCH_TIER7_NO_MATCH", 1);
+        getCounters().increment("MATCH_TIER7_NO_MATCH");
         return false;
     }
 
@@ -250,5 +252,13 @@ public class QCProcessor extends RecordProcessor {
 
     public int getQcThreadCount() {
         return qcThreadCount;
+    }
+
+    public CounterPool getCounters() {
+        return counters;
+    }
+
+    public void setCounters(CounterPool counters) {
+        this.counters = counters;
     }
 }
