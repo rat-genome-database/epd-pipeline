@@ -1,7 +1,6 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.pipelines.PipelineRecord;
 import edu.mcw.rgd.process.Utils;
 
 import java.util.*;
@@ -11,7 +10,7 @@ import java.util.*;
  * @since 4/17/12
  * represents object processed by the pipeline framework
  */
-public class EPDRecord extends PipelineRecord {
+public class EPDRecord {
 
     private Dao dao;
     // gene symbols and symbol synonyms extracted from several places:
@@ -43,6 +42,8 @@ public class EPDRecord extends PipelineRecord {
     private String experimentMethods;
     private String expressionData; // tissue
     private String regulationData;
+
+    private Set<String> flags = new HashSet<>();
 
     public Set<String> getGeneIds() {
         return geneIds;
@@ -181,5 +182,13 @@ public class EPDRecord extends PipelineRecord {
 
     public void setRegulationData(String regulationData) {
         this.regulationData = regulationData;
+    }
+
+    public void setFlag(String flag) {
+        flags.add(flag);
+    }
+
+    public boolean isFlagSet(String flag) {
+        return flags.contains(flag);
     }
 }

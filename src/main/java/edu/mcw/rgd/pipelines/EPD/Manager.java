@@ -1,6 +1,5 @@
 package edu.mcw.rgd.pipelines.EPD;
 
-import edu.mcw.rgd.pipelines.PipelineManager;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
@@ -8,6 +7,8 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -101,7 +102,6 @@ public class Manager {
     public void run(String srcPipeline, String fileName) throws Exception {
 
         CounterPool counters = new CounterPool();
-        PipelineManager pman = new PipelineManager();
 
         preProcessor.setDao(getDao());
         qcProcessor.setDao(getDao());
@@ -117,12 +117,20 @@ public class Manager {
 
         preProcessor.setFileName(fileName);
 
-        pman.addPipelineWorkgroup(preProcessor, "PP", 1, 0);
-        pman.addPipelineWorkgroup(qcProcessor, "QC", qcProcessor.getQcThreadCount(), 0);
-        pman.addPipelineWorkgroup(loadProcessor, "LD", qcProcessor.getQcThreadCount(), 0);
 
-        pman.run();
+        List<EPDRecord> incomingRecords = preProcessor.process();
+        // randomize incoming records to reduce chances of potential conflicts
+        Collections.shuffle(incomingRecords);
 
+        incomingRecords.parallelStream().forEach( rec -> {
+
+            try {
+                qcProcessor.process(rec);
+                loadProcessor.process(rec);
+            } catch( Exception e ) {
+                throw new RuntimeException(e);
+            }
+        });
         logger.info(counters.dumpAlphabetically());
     }
 

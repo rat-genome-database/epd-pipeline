@@ -1,3 +1,6 @@
+Jan 9, 2020
+  fixed issue in matching code; code refactored to use java streams
+
 Jan 6, 2020
   fixed handling of alternative and neighboring promoters
   implemented loading of non-coding promoters

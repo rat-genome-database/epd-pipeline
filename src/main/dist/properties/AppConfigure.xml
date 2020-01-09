@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD  -- build Jan 6, 2020"/>
+        <property name="version" value="EPD  -- build Jan 9, 2020"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
@@ -61,7 +61,6 @@
 	</bean>
 
     <bean id="qcProcessor" class="edu.mcw.rgd.pipelines.EPD.QCProcessor">
-        <property name="qcThreadCount" value="10"/>
         <property name="soAccId" value="SO:0000170" /> <!-- polymerase II promoter -->
     </bean>
 

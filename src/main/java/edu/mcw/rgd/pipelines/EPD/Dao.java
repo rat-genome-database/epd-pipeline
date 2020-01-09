@@ -34,13 +34,23 @@ public class Dao {
      * @return GenomicElement object or null if promoter id is invalid
      * @throws Exception when unexpected error in spring framework occurs
      */
-    public GenomicElement getPromoterById(String promoterId, int speciesTypeKey) throws Exception {
+    public GenomicElement getPromoterById(String promoterId, int speciesTypeKey, String srcPipeline) throws Exception {
 
         // first try to match by promoter symbol, then by promoter name
         List<GenomicElement> elements = genomicElementDAO.getElementsBySymbol(promoterId, RgdId.OBJECT_KEY_PROMOTERS);
         if( elements.isEmpty() && speciesTypeKey!=0 ) {
             elements = getElementsByName(promoterId, RgdId.OBJECT_KEY_PROMOTERS, speciesTypeKey);
         }
+
+        // restrict results to the given source
+        Iterator<GenomicElement> it = elements.iterator();
+        while( it.hasNext() ) {
+            GenomicElement ge = it.next();
+            if( !ge.getSource().equals(srcPipeline) ) {
+                it.remove();
+            }
+        }
+
         if( elements.isEmpty() ) {
             return null;
         }

@@ -4,8 +4,6 @@ import edu.mcw.rgd.datamodel.Association;
 import edu.mcw.rgd.datamodel.GenomicElement;
 import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.datamodel.SpeciesType;
-import edu.mcw.rgd.pipelines.PipelineRecord;
-import edu.mcw.rgd.pipelines.RecordProcessor;
 import edu.mcw.rgd.process.CounterPool;
 import org.apache.log4j.Logger;
 
@@ -15,7 +13,7 @@ import java.util.Date;
  * @author mtutaj
  * Date: 1/13/12
  */
-public class LoadProcessor extends RecordProcessor {
+public class LoadProcessor {
 
     private Dao dao;
     private String srcPipeline;
@@ -23,10 +21,8 @@ public class LoadProcessor extends RecordProcessor {
 
     protected final Logger newPromoterLogger = Logger.getLogger("insert_promoter");
 
-    @Override
-    public void process(PipelineRecord pipelineRecord) throws Exception {
+    public void process(EPDRecord rec) throws Exception {
 
-        EPDRecord rec = (EPDRecord) pipelineRecord;
         GenomicElement promoter = rec.getPromoter();
 
         if( rec.isFlagSet("LOAD_SKIP") ) {
@@ -86,7 +82,7 @@ public class LoadProcessor extends RecordProcessor {
 
         // create a list of incoming alternative promoters
         for( String accId: rec.getAltPromoters() ) {
-            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey());
+            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey(), getSrcPipeline());
             if( ge==null ) {
                 getCounters().increment("IGNORED_ALTERNATIVE_PROMOTERS");
             }
@@ -106,7 +102,7 @@ public class LoadProcessor extends RecordProcessor {
 
         // create a list of incoming neighboring promoters
         for( String accId: rec.getNeighboringPromoters() ) {
-            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey());
+            GenomicElement ge = dao.getPromoterById(accId, rec.getPromoter().getSpeciesTypeKey(), getSrcPipeline());
             if( ge==null ) {
                 getCounters().increment("IGNORED_NEIGHBORING_PROMOTERS");
             }

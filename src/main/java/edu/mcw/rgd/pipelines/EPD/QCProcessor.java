@@ -1,8 +1,6 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.pipelines.PipelineRecord;
-import edu.mcw.rgd.pipelines.RecordProcessor;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 
@@ -13,19 +11,16 @@ import java.util.*;
  * @author mtutaj
  * Date: 1/13/12
  */
-public class QCProcessor extends RecordProcessor {
+public class QCProcessor {
 
     private Dao dao;
     private String soAccId;
     private String srcPipeline;
     private CounterPool counters;
     private int maxPromoter2GeneDistance = 10000;
-    private int qcThreadCount;
 
-    @Override
-    public void process(PipelineRecord pipelineRecord) throws Exception {
+    public void process(EPDRecord rec) throws Exception {
 
-        EPDRecord rec = (EPDRecord) pipelineRecord;
         GenomicElement promoter = rec.getPromoter(); // incoming data promoter
 
         // skip qc for promoters of unknown species
@@ -36,7 +31,7 @@ public class QCProcessor extends RecordProcessor {
         promoter.setSoAccId(getSoAccId());
 
         // match promoter by promoter id
-        GenomicElement promoterInRgd = getDao().getPromoterById(promoter.getSymbol(), promoter.getSpeciesTypeKey());
+        GenomicElement promoterInRgd = getDao().getPromoterById(promoter.getSymbol(), promoter.getSpeciesTypeKey(), getSrcPipeline());
         if( promoterInRgd==null ) {
             // new promoter
             rec.setFlag("LOAD_INSERT");
@@ -244,14 +239,6 @@ public class QCProcessor extends RecordProcessor {
 
     public void setMaxPromoter2GeneDistance(int maxPromoter2GeneDistance) {
         this.maxPromoter2GeneDistance = maxPromoter2GeneDistance;
-    }
-
-    public void setQcThreadCount(int qcThreadCount) {
-        this.qcThreadCount = qcThreadCount;
-    }
-
-    public int getQcThreadCount() {
-        return qcThreadCount;
     }
 
     public CounterPool getCounters() {

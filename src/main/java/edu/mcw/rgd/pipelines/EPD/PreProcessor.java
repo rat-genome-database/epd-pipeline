@@ -1,14 +1,13 @@
 package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.pipelines.RecordPreprocessor;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.util.Date;
+import java.util.*;
 import java.util.Map;
 
 
@@ -16,7 +15,7 @@ import java.util.Map;
  * @author mtutaj
  * @since 1/13/12
  */
-public class PreProcessor extends RecordPreprocessor {
+public class PreProcessor {
     private String fileName;
 
     private Dao dao;
@@ -26,14 +25,11 @@ public class PreProcessor extends RecordPreprocessor {
     protected final Logger logger = Logger.getLogger("status");
     private Map<String, String> experimentEvidences;
 
-
-    @Override
-    public void process() throws Exception {
-
-        process(getFileName());
+    public List<EPDRecord> process() throws Exception {
+        return process(getFileName());
     }
 
-    private void process(String fileName) throws Exception {
+    private List<EPDRecord> process(String fileName) throws Exception {
 
         logger.info("Processing file " + fileName);
 
@@ -44,14 +40,15 @@ public class PreProcessor extends RecordPreprocessor {
         downloader.setUseCompression(true);
         String localFileName = downloader.downloadNew();
 
+        List<EPDRecord> results = new ArrayList<>();
+
         // open the input file
         try (BufferedReader reader = Utils.openReader(localFileName)) {
             // there could be multiple lines for one promoter
             String line;
-            int rowCount = 0, recNo = 0;
+            int rowCount = 0;
 
             EPDRecord rec = new EPDRecord();
-            rec.setRecNo(++recNo);
             rec.setDao(dao);
 
             while ((line = reader.readLine()) != null) {
@@ -75,12 +72,11 @@ public class PreProcessor extends RecordPreprocessor {
                     }
 
                     // new promoter detected: store previous data to database
-                    getSession().putRecordToFirstQueue(rec);
+                    results.add(rec);
                     getCounters().increment("RECORDS_PROCESSED");
 
                     // and initialize the new promoter
                     rec = new EPDRecord();
-                    rec.setRecNo(++recNo);
                     rec.setDao(dao);
                     continue;
                 }
@@ -120,6 +116,7 @@ public class PreProcessor extends RecordPreprocessor {
             logger.info("Lines read from file " + fileName + ": " + rowCount);
         }
 
+        return results;
     }
 
     private void appendToNotes( GenomicElement ge, String notes ) {
