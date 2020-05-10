@@ -1,3 +1,6 @@
+May 10, 2020
+  updated jar dependencies
+  
 Jan 9, 2020
   fixed issue in matching code; code refactored to use java streams
 
