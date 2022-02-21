@@ -3,7 +3,8 @@ package edu.mcw.rgd.pipelines.EPD;
 import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.process.Utils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class SequenceCollection {
     // THREAD SAFE SINGLETON -- end
 
 
-    Logger log = Logger.getLogger("status");
+    Logger log = LogManager.getLogger("status");
 
     private final Set<Sequence> incoming = new HashSet<>();
 

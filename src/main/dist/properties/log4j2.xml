@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/> -->
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] %msg%n"/>
+        </Console>
+
+        <RollingFile name="status" append="true" fileName="logs/status.log" filePattern="logs/status.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-hh HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="summary" append="false" fileName="logs/summary.log">
+            <PatternLayout pattern="%m%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+
+        <RollingFile name="insert_promoter" append="true" fileName="logs/insert_promoter.log" filePattern="logs/insert_promoter.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="assoc_genes" append="true" fileName="logs/assoc_genes.log" filePattern="logs/assoc_genes.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="assoc_promoters" append="true" fileName="logs/assoc_promoters.log" filePattern="logs/assoc_promoters.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="genomic_pos" append="true" fileName="logs/genomic_pos.log" filePattern="logs/genomic_pos.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="expression_data" append="true" fileName="logs/expression_data.log" filePattern="logs/expression_data.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="xdb_ids" append="true" fileName="logs/xdb_ids.log" filePattern="logs/xdb_ids.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="sequences" append="true" fileName="logs/sequences.log" filePattern="logs/sequences.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-hh HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <!-- daily -->
+        <Logger name="status" level="info" additivity="false">
+            <AppenderRef ref="status"/>
+            <AppenderRef ref="summary"/><!-- human readable -->
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <!-- monthly -->
+        <Logger name="insert_promoter" level="debug" additivity="false">
+            <AppenderRef ref="insert_promoter"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="assoc_genes" level="debug" additivity="false">
+            <AppenderRef ref="assoc_genes"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="assoc_promoters" level="debug" additivity="false">
+            <AppenderRef ref="assoc_promoters"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="genomic_pos" level="debug" additivity="false">
+            <AppenderRef ref="genomic_pos"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="expression_data" level="debug" additivity="false">
+            <AppenderRef ref="expression_data"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="xdb_ids" level="debug" additivity="false">
+            <AppenderRef ref="xdb_ids"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="sequences" level="debug" additivity="false">
+            <AppenderRef ref="sequences"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+    </Loggers>
+</Configuration>

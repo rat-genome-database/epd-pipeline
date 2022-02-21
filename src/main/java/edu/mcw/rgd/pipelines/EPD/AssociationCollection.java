@@ -2,7 +2,8 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.Association;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,7 @@ abstract public class AssociationCollection {
     abstract public String getLogPrefix(); // f.e. "GENE_ASSOC"
     abstract public String getLogName(); // f.e. "assoc_genes"
 
-    Logger log = Logger.getLogger("status");
+    Logger log = LogManager.getLogger("status");
 
     private final Map<Association, Object> incoming = new ConcurrentHashMap<>();
 

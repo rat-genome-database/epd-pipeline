@@ -2,12 +2,12 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +20,7 @@ public class Manager {
     private Dao dao;
     private String version;
 
-    protected final Logger logger = Logger.getLogger("status");
+    protected final Logger logger = LogManager.getLogger("status");
     private LocusInfoManager locusInfoManager;
 
     private static Manager manager = null;
@@ -40,8 +40,7 @@ public class Manager {
         try {
             manager.run();
         }catch( Exception e ) {
-            manager.logger.error(e.getMessage());
-            e.printStackTrace();
+            Utils.printStackTrace(e, manager.logger);
             throw new Exception(e);
         }
     }

@@ -4,7 +4,8 @@ import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.GenomicElementQuery;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -22,10 +23,10 @@ public class Dao {
     private GenomicElementDAO genomicElementDAO = new GenomicElementDAO();
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
-    Logger logExpressionData = Logger.getLogger("expression_data");
-    Logger logMapPos = Logger.getLogger("genomic_pos");
-    Logger logSeq = Logger.getLogger("sequences");
-    Logger logXdbIds = Logger.getLogger("xdb_ids");
+    Logger logExpressionData = LogManager.getLogger("expression_data");
+    Logger logMapPos = LogManager.getLogger("genomic_pos");
+    Logger logSeq = LogManager.getLogger("sequences");
+    Logger logXdbIds = LogManager.getLogger("xdb_ids");
 
 
     /**
@@ -283,7 +284,7 @@ public class Dao {
     }
 
     public void insertAssociations(Collection<Association> assocs, String logName) throws Exception {
-        Logger logger = Logger.getLogger(logName);
+        Logger logger = LogManager.getLogger(logName);
 
         for (Association assoc: assocs) {
             associationDAO.insertAssociation(assoc);
@@ -292,7 +293,7 @@ public class Dao {
     }
 
     public void deleteAssociations(Collection<Association> assocs, String logName) throws Exception {
-        Logger logger = Logger.getLogger(logName);
+        Logger logger = LogManager.getLogger(logName);
 
         for (Association assoc: assocs) {
             logger.debug(assoc.dump("|"));

@@ -4,7 +4,8 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.FileDownloader;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -22,7 +23,7 @@ public class PreProcessor {
     private String srcPipeline;
     private CounterPool counters;
 
-    protected final Logger logger = Logger.getLogger("status");
+    protected final Logger logger = LogManager.getLogger("status");
     private Map<String, String> experimentEvidences;
 
     public List<EPDRecord> process() throws Exception {

@@ -5,7 +5,8 @@ import edu.mcw.rgd.datamodel.GenomicElement;
 import edu.mcw.rgd.datamodel.Sequence;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.CounterPool;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
 
@@ -19,7 +20,7 @@ public class LoadProcessor {
     private String srcPipeline;
     private CounterPool counters;
 
-    protected final Logger newPromoterLogger = Logger.getLogger("insert_promoter");
+    protected final Logger newPromoterLogger = LogManager.getLogger("insert_promoter");
 
     public void process(EPDRecord rec) throws Exception {
 
