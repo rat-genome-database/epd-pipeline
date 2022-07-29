@@ -1,3 +1,6 @@
+Jul 29, 2022
+  fixed logging of date stamps
+
 Feb 21, 2022
   updated log4j to avoid zero day exploit
 
