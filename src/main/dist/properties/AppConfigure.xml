@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD  -- build Feb 24, 2023"/>
+        <property name="version" value="EPD  -- build May 03, 2023"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
@@ -9,21 +9,21 @@
         <property name="locusInfoManager" ref="locusInfoManager" />
         <property name="epdFileNames">
             <list>
-                <value>ftp://ccg.vital-it.ch/epd/current/epd.dat</value>
+                <value>ftp://ccg.epfl.ch/epd/current/epd.dat</value>
             </list>
         </property>
         <property name="epdNewFileNames">
             <list>
-                <value>ftp://ccg.vital-it.ch/epdnew/C_familiaris/current/Cf_EPDnew.dat</value>
-                <value>ftp://ccg.vital-it.ch/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
-                <value>ftp://ccg.vital-it.ch/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
-                <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/C_familiaris/current/Cf_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
             </list>
         </property>
         <property name="epdNewNcFileNames">
             <list>
-                <value>ftp://ccg.vital-it.ch/epdnew/M_musculus_nc/current/MmNC_EPDnew.dat</value>
-                <value>ftp://ccg.vital-it.ch/epdnew/H_sapiens_nc/current/HsNC_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/M_musculus_nc/current/MmNC_EPDnew.dat</value>
+                <value>ftp://ccg.epfl.ch/epdnew/H_sapiens_nc/current/HsNC_EPDnew.dat</value>
             </list>
         </property>
         <property name="staleXdbIdsDeleteThreshold" value="8%" />
