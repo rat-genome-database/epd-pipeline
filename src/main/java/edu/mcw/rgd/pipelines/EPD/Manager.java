@@ -32,26 +32,6 @@ public class Manager {
 
     public static void main(String[] args) throws Exception {
 
-        String[] array = {
-        "Homo sapiens",
-        "Arabidopsis thaliana",
-        "Caenorhabditis elegans",
-        "Sus scrofa",
-        "Bos taurus",
-        "Zea mays",
-        "Oryza sativa",
-        "Canis lupus familiaris",
-        "Oncorhynchus mykiss",
-        "Mycobacterium tuberculosis",
-        "Pan troglodytes",
-        "Salmo salar",
-        "Schmidtea mediterranea",
-        "Medicago truncatula",};
-        for( String s: array ) {
-            System.out.println( s + " = "+SpeciesType.parse(s));
-        }
-        System.exit(0);
-
         // process args
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new FileSystemResource("properties/AppConfigure.xml"));
