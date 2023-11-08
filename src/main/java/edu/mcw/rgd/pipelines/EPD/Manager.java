@@ -1,5 +1,6 @@
 package edu.mcw.rgd.pipelines.EPD;
 
+import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,26 @@ public class Manager {
     private String staleXdbIdsDeleteThreshold;
 
     public static void main(String[] args) throws Exception {
+
+        String[] array = {
+        "Homo sapiens",
+        "Arabidopsis thaliana",
+        "Caenorhabditis elegans",
+        "Sus scrofa",
+        "Bos taurus",
+        "Zea mays",
+        "Oryza sativa",
+        "Canis lupus familiaris",
+        "Oncorhynchus mykiss",
+        "Mycobacterium tuberculosis",
+        "Pan troglodytes",
+        "Salmo salar",
+        "Schmidtea mediterranea",
+        "Medicago truncatula",};
+        for( String s: array ) {
+            System.out.println( s + " = "+SpeciesType.parse(s));
+        }
+        System.exit(0);
 
         // process args
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();

@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <bean id="manager" class="edu.mcw.rgd.pipelines.EPD.Manager">
-        <property name="version" value="EPD  -- build Jul 28, 2023"/>
+        <property name="version" value="EPD  -- build Nov 08, 2023"/>
         <property name="preProcessor" ref="preProcessor"/>
         <property name="qcProcessor" ref="qcProcessor"/>
         <property name="loadProcessor" ref="loadProcessor"/>
@@ -14,16 +14,16 @@
         </property>
         <property name="epdNewFileNames">
             <list>
-                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/Cf_EPDnew.dat</value>
-                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/Rn_EPDnew.dat</value>
-                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/Mm_EPDnew.dat</value>
+                <value>https://epd.expasy.org/ftp/epdnew/C_familiaris/current/Cf_EPDnew.dat</value>
+                <value>https://epd.expasy.org/ftp/epdnew/R_norvegicus/current/Rn_EPDnew.dat</value>
+                <value>https://epd.expasy.org/ftp/epdnew/M_musculus/current/Mm_EPDnew.dat</value>
                 <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/Hs_EPDnew.dat</value>
             </list>
         </property>
         <property name="epdNewNcFileNames">
             <list>
-                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/MmNC_EPDnew.dat</value>
-                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens/current/HsNC_EPDnew.dat</value>
+                <value>https://epd.expasy.org/ftp/epdnew/M_musculus_nc/current/MmNC_EPDnew.dat</value>
+                <value>https://epd.expasy.org/ftp/epdnew/H_sapiens_nc/current/HsNC_EPDnew.dat</value>
             </list>
         </property>
         <property name="staleXdbIdsDeleteThreshold" value="8%" />
