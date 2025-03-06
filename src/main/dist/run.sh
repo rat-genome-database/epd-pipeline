@@ -2,7 +2,7 @@
 # run the EPD pipeline
 #
 . /etc/profile
-APPNAME=EPD
+APPNAME=epd-pipeline
 
 APPDIR=/home/rgddata/pipelines/$APPNAME
 cd $APPDIR
