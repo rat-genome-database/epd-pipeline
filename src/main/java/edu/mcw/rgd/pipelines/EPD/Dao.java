@@ -64,9 +64,11 @@ public class Dao {
 
     public List<GenomicElement> getElementsByName(String name, int objectKey, int speciesTypeKey) throws Exception {
 
-        String sql = "SELECT ge.*,r.species_type_key,r.object_status,r.object_key "+
-                "FROM genomic_elements ge, rgd_ids r "+
-                "WHERE LOWER(ge.name)=LOWER(?) AND ge.rgd_id=r.rgd_id AND r.object_key=? AND r.species_type_key=?";
+        String sql = """
+            SELECT ge.*,r.species_type_key,r.object_status,r.object_key
+            FROM genomic_elements ge, rgd_ids r
+            WHERE LOWER(ge.name)=LOWER(?) AND ge.rgd_id=r.rgd_id AND r.object_key=? AND r.species_type_key=?
+            """;
 
         GenomicElementQuery q = new GenomicElementQuery(genomicElementDAO.getDataSource(), sql);
         return genomicElementDAO.execute(q, name, objectKey, speciesTypeKey);
