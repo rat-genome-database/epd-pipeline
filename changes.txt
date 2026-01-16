@@ -1,3 +1,6 @@
+Jan 16, 2026
+  updated dependencies
+  
 Nov 04, 2025
   dao: simplified sql
 
