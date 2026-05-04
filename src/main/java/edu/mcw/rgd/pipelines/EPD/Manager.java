@@ -2,6 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.CounterPool;
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,36 +61,46 @@ public class Manager {
 
         logger.info(getVersion());
 
-        Date startDate = Utils.addHoursToDate(new Date(), -2); // remove stale XDB_IDS that are older than 2 hours
-        // Note: if we use current timestamp as the cutoff timestamp, freshly added/modified xdb ids could be incorrectly
-        //    classified as stale and dropped! (due to possible clock differences between db and app servers)
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
+
+        boolean ok = false;
+        try {
+            Date startDate = Utils.addHoursToDate(new Date(), -2); // remove stale XDB_IDS that are older than 2 hours
+            // Note: if we use current timestamp as the cutoff timestamp, freshly added/modified xdb ids could be incorrectly
+            //    classified as stale and dropped! (due to possible clock differences between db and app servers)
 
 
-        String[] sources = {"EPD", "EPDNEW", "EPDNEWNC"};
+            String[] sources = {"EPD", "EPDNEW", "EPDNEWNC"};
 
-        run("EPD", getEpdFileNames());
-        run("EPDNEW", getEpdNewFileNames());
-        run("EPDNEWNC", getEpdNewNcFileNames());
+            run("EPD", getEpdFileNames());
+            run("EPDNEW", getEpdNewFileNames());
+            run("EPDNEWNC", getEpdNewNcFileNames());
 
 
-        // post processing
-        // ---
-        AlternativePromoterCollection.getInstance().qc(dao, sources);
-        NeighborPromoterCollection.getInstance().qc(dao, sources);
+            // post processing
+            // ---
+            AlternativePromoterCollection.getInstance().qc(dao, sources);
+            NeighborPromoterCollection.getInstance().qc(dao, sources);
 
-        ExpressionDataCollection.getInstance().qc(dao, sources);
+            ExpressionDataCollection.getInstance().qc(dao, sources);
 
-        MapsDataCollection.getInstance().qc(dao, sources);
+            MapsDataCollection.getInstance().qc(dao, sources);
 
-        // 'promoter_to_gene' associations
-        GeneAssociationCollection.getInstance().qc(dao, sources);
+            // 'promoter_to_gene' associations
+            GeneAssociationCollection.getInstance().qc(dao, sources);
 
-        // 'promoter_region' sequences
-        SequenceCollection.getInstance().qc(dao);
+            // 'promoter_region' sequences
+            SequenceCollection.getInstance().qc(dao);
 
-        XdbIdCollection.getInstance().qc(dao, sources, getStaleXdbIdsDeleteThreshold());
+            XdbIdCollection.getInstance().qc(dao, sources, getStaleXdbIdsDeleteThreshold());
 
-        System.out.println("=== OK ===  elapsed  "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+            ok = true;
+        } finally {
+            memoryMonitor.stop();
+            logger.info(memoryMonitor.getSummary());
+            logger.info((ok ? "=== OK === " : "=== FAILED === ") + " elapsed  " + Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+        }
     }
 
     void run(String srcPipeline, List<String> epdFileNames) throws Exception {
