@@ -2,7 +2,7 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +34,7 @@ public class PreProcessor {
 
         logger.info("Processing file " + fileName);
 
-        FileDownloader downloader = new FileDownloader();
+        FileDownloader2 downloader = new FileDownloader2();
         downloader.setExternalFile(fileName);
         downloader.setLocalFile("data/" + new File(fileName).getName());
         downloader.setAppendDateStamp(true);
