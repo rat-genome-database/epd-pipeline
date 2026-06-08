@@ -73,7 +73,6 @@ public class EPDRecord {
                     accIds.add(xdbId.getAccId());
                 }
             }
-            return accIds;
         }
         return accIds;
     }

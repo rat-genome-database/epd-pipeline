@@ -1,3 +1,6 @@
+Jun 8, 2026
+  bug fix: gene matching now uses Ensembl/MGD/UniProt/OMIM acc ids (getAccIds returned only the first xdb key); updated dependencies
+
 May 14, 2026
   switched to FileDownloader2; removed unused Apache HTTP and FTP dependencies
 
