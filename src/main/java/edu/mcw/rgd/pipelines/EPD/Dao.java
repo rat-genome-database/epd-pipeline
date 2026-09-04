@@ -23,6 +23,7 @@ public class Dao {
     private GenomicElementDAO genomicElementDAO = new GenomicElementDAO();
     private SequenceDAO sequenceDAO = new SequenceDAO();
 
+    Logger logStatus = LogManager.getLogger("status");
     Logger logExpressionData = LogManager.getLogger("expression_data");
     Logger logMapPos = LogManager.getLogger("genomic_pos");
     Logger logSeq = LogManager.getLogger("sequences");
@@ -231,9 +232,9 @@ public class Dao {
         int xdbIdsForDeleteCount = xdbIdsForDelete.size();
         int xdbIdsForDeleteThreshold = (deleteThreshold * currentXdbIdCount) / 100; // 5% delete threshold
         if( xdbIdsForDeleteCount > xdbIdsForDeleteThreshold ) {
-            System.out.println(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") -- "+xdbIdsForDeleteThreshold);
-            System.out.println(" XDB IDS TAGGED FOR DELETE     -- "+xdbIdsForDeleteCount);
-            System.out.println(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") EXCEEDED -- no xdb ids deleted");
+            logStatus.warn(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") -- "+xdbIdsForDeleteThreshold);
+            logStatus.warn(" XDB IDS TAGGED FOR DELETE     -- "+xdbIdsForDeleteCount);
+            logStatus.warn(" XDB IDS DELETE THRESHOLD ("+deleteThresholdStr+") EXCEEDED -- no xdb ids deleted");
             return 0;
         }
 

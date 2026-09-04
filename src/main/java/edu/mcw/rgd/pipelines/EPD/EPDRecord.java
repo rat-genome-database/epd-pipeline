@@ -2,6 +2,8 @@ package edu.mcw.rgd.pipelines.EPD;
 
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -11,6 +13,8 @@ import java.util.*;
  * represents object processed by the pipeline framework
  */
 public class EPDRecord {
+
+    static Logger log = LogManager.getLogger("status");
 
     private Dao dao;
     // gene symbols and symbol synonyms extracted from several places:
@@ -54,7 +58,7 @@ public class EPDRecord {
             return false;
         }
         if( id.equals("1") || id.equals("2")) {
-            System.out.println("warning: unexpected gene id length <2: "+id);
+            log.warn("warning: unexpected gene id length <2: "+id);
             return false;
         }
         geneIds.add(id);

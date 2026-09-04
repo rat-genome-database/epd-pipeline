@@ -1,3 +1,7 @@
+Sep 4, 2026
+  bug fix: ME lines with 'none.' no longer recorded as experiment methods (bogus expression data);
+    xdb-id delete-threshold warnings now go to the status log instead of stdout; removed dead code; updated dependencies
+
 Jun 8, 2026
   bug fix: gene matching now uses Ensembl/MGD/UniProt/OMIM acc ids (getAccIds returned only the first xdb key); updated dependencies
 

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class Manager {
@@ -66,11 +65,6 @@ public class Manager {
 
         boolean ok = false;
         try {
-            Date startDate = Utils.addHoursToDate(new Date(), -2); // remove stale XDB_IDS that are older than 2 hours
-            // Note: if we use current timestamp as the cutoff timestamp, freshly added/modified xdb ids could be incorrectly
-            //    classified as stale and dropped! (due to possible clock differences between db and app servers)
-
-
             String[] sources = {"EPD", "EPDNEW", "EPDNEWNC"};
 
             run("EPD", getEpdFileNames());

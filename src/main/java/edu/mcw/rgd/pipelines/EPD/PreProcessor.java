@@ -505,7 +505,7 @@ public class PreProcessor {
         //ME   Method_description [; Qualifier...] [n,...].
 
         String str = line.substring(5).trim();
-        if( !str.isEmpty() || !str.equals("none.") ) {
+        if( !str.isEmpty() && !str.equals("none.") ) {
             // Nuclease protection; transfected or transformed cells [3].
             // removes the last occurrence of square brackets
             int pos = str.lastIndexOf('[');
